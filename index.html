@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>繁體中文寫字學習v4</h1>
+        <h1>繁體中文寫字學習v2</h1>
 
         <div class="layout-wrapper-ipad-landscape">
             
@@ -32,7 +32,10 @@
                 <div id="target-char-display">
                     <p>請練習寫：<span id="current-char-text"></span></p>
                 </div>
-                <div id="character-target-div"></div>
+
+                <div id="hanzi-canvas-container">
+                    <div id="character-target-div"></div> <svg id="user-stroke-overlay"></svg> </div>
+
                 <div class="controls">
                     <button id="animate-btn">看動畫</button>
                     <button id="quiz-btn">開始練習</button>
@@ -43,7 +46,9 @@
                 </div>
             </div>
 
-        </div> </div>
+        </div>
+
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.6/dist/hanzi-writer.min.js"></script>
     <script src="script.js"></script>

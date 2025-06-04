@@ -1,11 +1,21 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // 等待 HTML 文件完全載入並解析後才執行
-    const characters = ["我", "你", "們"]; // 可練習的漢字列表
-    let currentChar = characters[0]; // 目前選擇的漢字，預設為第一個
-    let writer = null; // 用於儲存 Hanzi Writer 的實例
-    let totalStrokes = 0; // 目前漢字的總筆劃數
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
 
-    // 獲取 HTML 元素
+document.addEventListener('DOMContentLoaded', () => {
+    const characters = ["我", "你", "們"]; //
+    let currentChar = characters[0]; //
+    let writer = null; //
+    let totalStrokes = 0; //
+
     const charButtons = document.querySelectorAll('.char-btn'); //
     const currentCharText = document.getElementById('current-char-text'); //
     const targetDiv = document.getElementById('character-target-div'); //
@@ -17,10 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const manualCharInput = document.getElementById('manual-char-input');
     const submitManualCharBtn = document.getElementById('submit-manual-char-btn');
 
-    /**
-     * 初始化或更新 Hanzi Writer 實例
-     * @param {string} char - 要顯示和練習的漢字
-     */
     function initializeWriter(char) {
         console.log('initializeWriter called with char:', char);
         currentChar = char;
@@ -29,15 +35,13 @@ document.addEventListener('DOMContentLoaded', () => {
         scoreFeedback.textContent = '---'; //
         scoreFeedback.style.color = '#D84315'; //
 
-        targetDiv.innerHTML = ''; // 清除舊的畫布
+        targetDiv.innerHTML = ''; //
 
-        // 讓 HanziWriter 使用 #character-target-div 由 CSS 計算後的實際尺寸
         const currentDivWidth = targetDiv.offsetWidth;
         const currentDivHeight = targetDiv.offsetHeight;
 
         console.log('Canvas dimensions from CSS:', currentDivWidth, currentDivHeight);
 
-        // 確保尺寸有效，避免 HanziWriter 出錯
         const finalCanvasWidth = currentDivWidth > 0 ? currentDivWidth : 250;
         const finalCanvasHeight = currentDivHeight > 0 ? currentDivHeight : 250;
         
@@ -193,4 +197,14 @@ document.addEventListener('DOMContentLoaded', () => {
         animateBtn.disabled = true; //
         if(quizBtn) quizBtn.disabled = true; //
     }
+
+    // 新增：處理視窗大小改變的邏輯
+    const debouncedResizeHandler = debounce(() => {
+        if (writer && currentChar) {
+            console.log('Window resized/orientation changed, re-initializing HanziWriter for char:', currentChar);
+            initializeWriter(currentChar);
+        }
+    }, 250);
+
+    window.addEventListener('resize', debouncedResizeHandler);
 });

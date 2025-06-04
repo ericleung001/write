@@ -8,12 +8,16 @@
 </head>
 <body>
     <div class="container">
-        <h1>繁體中文寫字學習v2</h1>
+        <h1>繁體中文寫字學習</h1>
         <div class="char-selection">
             <p>請選擇要練習的字：</p>
             <button class="char-btn" data-char="我">我</button>
             <button class="char-btn" data-char="你">你</button>
             <button class="char-btn" data-char="們">們</button>
+        </div> <div class="manual-char-input-area">
+            <p>或在此輸入單個繁體字進行練習：</p>
+            <input type="text" id="manual-char-input" placeholder="輸入單字" maxlength="1">
+            <button id="submit-manual-char-btn">確定</button>
         </div>
         <div id="target-char-display">
             <p>請練習寫：<span id="current-char-text"></span></p>

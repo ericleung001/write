@@ -40,7 +40,7 @@ h1 {
 }
 
 /* 漢字專用字體 */
-.char-selection button, /* */
+.char-btn, /* Changed from .char-selection button for consistency */
 #current-char-text, /* */
 #manual-char-input {
     font-family: 'KaiTi', 'BiauKai', '標楷體', 'DFKai-SB', serif; /* */
@@ -50,18 +50,22 @@ h1 {
 .char-selection {
     margin-bottom: 20px; /* */
 }
-
 .char-selection p {
     margin-bottom: 15px; /* */
     font-size: 1.1em; /* */
     color: #1A5276; /* */
     font-weight: 500; /* */
 }
-
-.char-selection button {
+.char-buttons-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px; /* 按鈕之間的間距 */
+}
+.char-btn { /* Styling for all character buttons */
     font-size: 1.8em; /* */
-    padding: 12px 18px; /* */
-    margin: 8px; /* */
+    padding: 10px 15px; /* Adjusted padding */
+    margin: 0; /* Removed margin as gap is used */
     cursor: pointer; /* */
     border-radius: 15px; /* */
     transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease; /* */
@@ -69,23 +73,59 @@ h1 {
     font-weight: bold; /* */
     border: none; /* */
     box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* */
+    position: relative; /* For delete icon positioning */
+    min-width: 60px; /* Ensure button has some width */
+    text-align: center;
 }
-.char-selection button:hover {
+.char-btn:hover {
     transform: translateY(-4px) scale(1.08); /* */
     box-shadow: 0 7px 14px rgba(0,0,0,0.18); /* */
 }
-.char-selection button:active {
+.char-btn:active, .char-btn.active { /* Combined active and :active states */
     transform: translateY(1px) scale(0.95); /* */
     box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* */
 }
 
-.char-selection button[data-char="我"] { background-color: #FF8A65; } /* */
-.char-selection button[data-char="你"] { background-color: #4FC3F7; } /* */
-.char-selection button[data-char="們"] { background-color: #AED581; } /* */
+/* Specific colors for predefined buttons, can be adjusted if needed */
+.char-btn[data-char="我"] { background-color: #FF8A65; } /* */
+.char-btn[data-char="你"] { background-color: #4FC3F7; } /* */
+.char-btn[data-char="們"] { background-color: #AED581; } /* */
+.char-btn.user-added-char { background-color: #BDBDBD; } /* Grey for user-added, or choose another */
 
-.char-selection button[data-char="我"].active { background-color: #FF7043; box-shadow: 0 0 12px #FF7043, inset 0 3px 5px rgba(0,0,0,0.25); transform: scale(1.05); } /* */
-.char-selection button[data-char="你"].active { background-color: #29B6F6; box-shadow: 0 0 12px #29B6F6, inset 0 3px 5px rgba(0,0,0,0.25); transform: scale(1.05); } /* */
-.char-selection button[data-char="們"].active { background-color: #9CCC65; box-shadow: 0 0 12px #9CCC65, inset 0 3px 5px rgba(0,0,0,0.25); transform: scale(1.05); } /* */
+.char-btn[data-char="我"].active { background-color: #FF7043; box-shadow: 0 0 10px #FF7043, inset 0 2px 4px rgba(0,0,0,0.2); } /* */ /* Adjusted shadow */
+.char-btn[data-char="你"].active { background-color: #29B6F6; box-shadow: 0 0 10px #29B6F6, inset 0 2px 4px rgba(0,0,0,0.2); } /* */
+.char-btn[data-char="們"].active { background-color: #9CCC65; box-shadow: 0 0 10px #9CCC65, inset 0 2px 4px rgba(0,0,0,0.2); } /* */
+.char-btn.user-added-char.active { background-color: #A3A3A3; box-shadow: 0 0 10px #9E9E9E, inset 0 2px 4px rgba(0,0,0,0.2); }
+
+
+.delete-char-icon {
+    position: absolute;
+    top: -5px; /* Adjust for better visual placement */
+    right: -5px; /* Adjust for better visual placement */
+    width: 20px;
+    height: 20px;
+    background-color: rgba(200, 60, 60, 0.75);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1; 
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    z-index: 1; /* Ensure it's above the button text if overlap occurs */
+}
+.delete-char-icon:hover {
+    background-color: rgba(220, 40, 40, 0.9);
+    transform: scale(1.1);
+}
+.delete-char-icon:active {
+    transform: scale(0.95);
+}
+
 
 /* 手動輸入區域樣式 */
 .manual-char-input-area { /* */
@@ -99,21 +139,18 @@ h1 {
     flex-direction: column; /* */
     align-items: center; /* */
 }
-
 .manual-char-input-area p { /* */
     margin-bottom: 18px; /* */
     font-size: 1.15em; /* */
     color: #00796B; /* */
     font-weight: 500; /* */
 }
-
 .input-button-wrapper { /* */
     display: flex; /* */
     align-items: center; /* */
     gap: 12px; /* */
     width: 100%; 
 }
-
 #manual-char-input { /* */
     font-size: 1.8em; /* */
     padding: 10px 15px; /* */
@@ -127,13 +164,11 @@ h1 {
     transition: border-color 0.3s ease, box-shadow 0.3s ease; /* */
     background-color: #FFFFFF; /* */
 }
-
 #manual-char-input:focus { /* */
     border-color: #00796B; /* */
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.06), 0 0 0 3px rgba(0, 121, 107, 0.2); /* */
     outline: none; /* */
 }
-
 #submit-manual-char-btn { /* */
     font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", sans-serif; /* */
     font-size: 1.1em; /* */
@@ -149,13 +184,11 @@ h1 {
     text-shadow: 0px 1px 1px rgba(0,0,0,0.2); /* */
     flex-shrink: 0; 
 }
-
 #submit-manual-char-btn:hover { /* */
     background-color: #00897B; /* */
     box-shadow: 0 4px 0 #004D40, 0 2px 8px rgba(0,0,0,0.1); /* */
     transform: translateY(-2px); /* */
 }
-
 #submit-manual-char-btn:active { /* */
     background-color: #00695C; /* */
     box-shadow: 0 2px 0 #004D40; /* */
@@ -169,7 +202,6 @@ h1 {
     color: #1A5276; /* */
     font-weight: 500; /* */
 }
-
 #current-char-text {
     font-weight: bold; /* */
     color: #F06292; /* */
@@ -184,7 +216,7 @@ h1 {
 #hanzi-canvas-container {
     width: 250px; 
     height: 250px; 
-    margin: 20px auto 20px auto; /* 減少下方 margin 來處理與按鈕的間距 */
+    margin: 20px auto 20px auto; 
     border: 6px solid #FFCA28; /* */
     background-color: #FFFFF0; /* */
     border-radius: 20px; /* */
@@ -192,25 +224,13 @@ h1 {
     position: relative; 
     overflow: hidden; 
 }
-
 #character-target-div { 
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
 }
-
 #user-stroke-overlay { 
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     pointer-events: none; 
-    /* border: 1px dashed blue; */ /* 移除或註釋掉調試邊框 */
 }
-
 #character-target-div svg { 
     width: 100%; /* */
     height: 100%; /* */
@@ -219,12 +239,12 @@ h1 {
 
 /* 控制按鈕區域 */
 .controls {
-    margin-top: 20px; /* 減少上方 margin 來處理與寫字框的間距 */ /* */
+    margin-top: 20px; /* */
     display: flex; /* */
     flex-direction: column; /* */
     gap: 18px; /* */
 }
-
+/* ... (其他 .controls button, #animate-btn, #quiz-btn, #reset-btn, #score-area, #score-feedback 樣式保持不變) ... */
 .controls button {
     font-size: 1.25em; /* */
     padding: 16px 22px; /* */
@@ -279,7 +299,6 @@ h1 {
     box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* */
     font-weight: 500; /* */
 }
-
 #score-feedback {
     font-weight: 700; /* */
     display: block; /* */
@@ -287,6 +306,7 @@ h1 {
     font-size: 1.15em; /* */
     color: #D84315; /* */
 }
+
 
 /* 響應式調整 */
 @media (min-width: 600px) { /* */
@@ -297,7 +317,7 @@ h1 {
         max-width: 580px; /* */
     }
     h1 { font-size: 2.6em; } /* */
-    .char-selection button { font-size: 2em; padding: 15px 22px; margin: 10px; } /* */
+    .char-btn { font-size: 2em; padding: 15px 22px; } /* Adjusted selector */
     .manual-char-input-area p { font-size: 1.2em; } /* */
     #manual-char-input { font-size: 2em; width: 120px; padding: 12px 18px; } /* */
     #submit-manual-char-btn { font-size: 1.25em; padding: 14px 22px; } /* */
@@ -306,7 +326,7 @@ h1 {
     #hanzi-canvas-container { /* */
         width: 280px; /* */
         height: 280px; /* */
-        margin-bottom: 25px; /* 調整間距 */
+        margin-bottom: 25px; 
     }
     .controls { 
         margin-top: 25px; /* */
@@ -328,7 +348,7 @@ h1 {
     .left-column-ipad { flex-basis: 35%; max-width: 380px; display: flex; flex-direction: column; gap: 20px; } /* */
     .right-column-ipad { flex-basis: 60%; display: flex; flex-direction: column; align-items: center; } /* */
     .char-selection, .manual-char-input-area { width: 100%; margin-top: 0; margin-bottom: 0; } /* */
-    .char-selection button { font-size: 1.6em; padding: 10px 15px; margin: 6px; } /* */
+    .char-btn { font-size: 1.6em; padding: 10px 15px; } /* Adjusted selector */
     .input-button-wrapper { width: 100%; } /* */
     #manual-char-input { font-size: 1.5em; flex-grow: 1; min-width: 80px; } /* */
     #submit-manual-char-btn { padding: 10px 15px; font-size: 1em; flex-shrink: 0; } /* */
@@ -338,14 +358,14 @@ h1 {
         max-width: 380px; /* */
         height: auto;   /* */
         aspect-ratio: 1 / 1;  /* */
-        margin: 15px auto 20px auto;  /* 調整下方 margin */ /* */
+        margin: 15px auto 20px auto;  /* */
         border-width: 5px;  /* */
     }
 
     .controls { 
         width: 100%; 
         max-width: 450px; 
-        margin-top: 20px; /* 調整上方 margin */ /* */
+        margin-top: 20px; /* */
     }
     .controls button { font-size: 1.1em; padding: 12px 18px; min-width: 120px; } /* */
     #score-area { width: 100%; max-width: 450px; margin-top: 20px; } /* */

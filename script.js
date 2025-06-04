@@ -18,7 +18,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const charButtons = document.querySelectorAll('.char-btn'); //
     const currentCharText = document.getElementById('current-char-text'); //
-    const targetDiv = document.getElementById('character-target-div'); //
+    const targetDiv = document.getElementById('character-target-div'); // HanziWriter's target
+    const hanziCanvasContainer = document.getElementById('hanzi-canvas-container'); // Main container for canvas and overlay
+    const userStrokeOverlay = document.getElementById('user-stroke-overlay'); // SVG overlay for user strokes
+    let userDrawnPaths = []; // Stores user's drawn path data
+
     const animateBtn = document.getElementById('animate-btn'); //
     const quizBtn = document.getElementById('quiz-btn'); //
     const resetBtn = document.getElementById('reset-btn'); //
@@ -27,27 +31,50 @@ document.addEventListener('DOMContentLoaded', () => {
     const manualCharInput = document.getElementById('manual-char-input');
     const submitManualCharBtn = document.getElementById('submit-manual-char-btn');
 
+    function redrawUserStrokeOverlay() {
+        if (!userStrokeOverlay) return;
+        userStrokeOverlay.innerHTML = ''; 
+
+        userDrawnPaths.forEach(pathData => {
+            const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            pathElement.setAttribute('d', pathData.path);
+            pathElement.setAttribute('fill', 'none');
+            pathElement.setAttribute('stroke', pathData.color); 
+            pathElement.setAttribute('stroke-width', '3'); // Slightly thinner for contrast
+            pathElement.setAttribute('stroke-linecap', 'round');
+            pathElement.setAttribute('stroke-linejoin', 'round');
+            pathElement.setAttribute('opacity', '0.8'); // Slight transparency
+            userStrokeOverlay.appendChild(pathElement);
+        });
+    }
+
     function initializeWriter(char) {
         console.log('initializeWriter called with char:', char);
         currentChar = char;
-        console.log('Setting currentCharText.textContent to:', char);
         currentCharText.textContent = char; //
         scoreFeedback.textContent = '---'; //
         scoreFeedback.style.color = '#D84315'; //
 
-        targetDiv.innerHTML = ''; //
-
-        const currentDivWidth = targetDiv.offsetWidth;
-        const currentDivHeight = targetDiv.offsetHeight;
-
-        console.log('Canvas dimensions from CSS:', currentDivWidth, currentDivHeight);
-
-        const finalCanvasWidth = currentDivWidth > 0 ? currentDivWidth : 250;
-        const finalCanvasHeight = currentDivHeight > 0 ? currentDivHeight : 250;
+        targetDiv.innerHTML = ''; // Clear HanziWriter's previous SVG
         
-        writer = HanziWriter.create(targetDiv, char, {
-            width: finalCanvasWidth,
-            height: finalCanvasHeight,
+        if (userStrokeOverlay) {
+            userStrokeOverlay.innerHTML = ''; 
+            userStrokeOverlay.setAttribute('viewBox', '0 0 1024 1024'); 
+        }
+        userDrawnPaths = [];
+
+        // Use the dimensions of the #hanzi-canvas-container for HanziWriter
+        const containerWidth = hanziCanvasContainer.offsetWidth;
+        const containerHeight = hanziCanvasContainer.offsetHeight; 
+
+        console.log('Canvas dimensions for HanziWriter from container:', containerWidth, containerHeight);
+
+        const finalCanvasWidth = containerWidth > 0 ? containerWidth : 250;
+        const finalCanvasHeight = containerHeight > 0 ? containerHeight : 250;
+        
+        writer = HanziWriter.create(targetDiv, char, { // targetDiv is where HanziWriter mounts its SVG
+            width: finalCanvasWidth,  
+            height: finalCanvasHeight, 
             padding: 10, //
             showOutline: true, //
             showCharacter: true, //
@@ -55,8 +82,8 @@ document.addEventListener('DOMContentLoaded', () => {
             delayBetweenStrokes: 250, //
             strokeColor: '#4A4A4A', //
             highlightColor: '#F06292', //
-            outlineColor: '#FFD180', //
-            drawingColor: '#29B6F6', //
+            outlineColor: '#FFD180', // (Color of the character outline)
+            drawingColor: '#29B6F6', // Color of user's stroke during quiz (HanziWriter's drawing)
             drawingWidth: 14, //
             onLoadCharDataSuccess: function(data) { //
                 console.log('onLoadCharDataSuccess for char:', char, data);
@@ -92,12 +119,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (submitManualCharBtn && manualCharInput) {
         submitManualCharBtn.addEventListener('click', () => {
-            console.log('Submit button clicked.');
             const charToLoad = manualCharInput.value.trim();
-            console.log('Character to load:', charToLoad, 'Length:', charToLoad.length);
-
             if (charToLoad && charToLoad.length === 1) {
-                console.log('Calling initializeWriter with:', charToLoad);
                 initializeWriter(charToLoad);
                 manualCharInput.value = '';
             } else if (charToLoad.length > 1) {
@@ -108,7 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 scoreFeedback.style.color = '#dc3545'; //
             }
         });
-
         manualCharInput.addEventListener('keypress', (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault();
@@ -118,15 +140,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     animateBtn.addEventListener('click', () => { //
-        if (writer) { //
-            writer.animateCharacter(); //
-            scoreFeedback.textContent = '請觀察筆順。'; //
-            scoreFeedback.style.color = '#17a2b8'; //
-        }
+        if (writer) writer.animateCharacter(); //
+        scoreFeedback.textContent = '請觀察筆順。'; //
+        scoreFeedback.style.color = '#17a2b8'; //
     });
 
     quizBtn.addEventListener('click', () => { //
         if (writer) { //
+            if (quizBtn.textContent === '開始練習' || quizBtn.textContent === '重新練習') { //
+                if (userStrokeOverlay) userStrokeOverlay.innerHTML = '';
+                userDrawnPaths = [];
+            }
             scoreFeedback.textContent = '請依照筆順書寫。'; //
             scoreFeedback.style.color = '#17a2b8'; //
             quizBtn.textContent = '練習中...'; //
@@ -134,33 +158,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
             writer.quiz({ //
                 onCorrectStroke: function(data) { //
-                    console.log(`筆劃 ${data.strokeNum + 1} 正確! (此筆劃嘗試 ${data.mistakesOnStroke + 1} 次)`); //
                     scoreFeedback.textContent = `第 ${data.strokeNum + 1} 筆正確！(${data.strokeNum + 1}/${totalStrokes})`; //
                     scoreFeedback.style.color = '#28a745'; //
+                    if (data.drawnPath) {
+                        userDrawnPaths.push({ path: data.drawnPath.pathString, color: '#28a745' }); // Green for correct
+                        redrawUserStrokeOverlay();
+                    }
                 },
                 onMistake: function(data) { //
-                    console.log(`筆劃 ${data.strokeNum + 1} 錯誤 (此筆劃第 ${data.mistakesOnStroke} 次錯誤)! 總錯誤: ${data.totalMistakes}`); //
                     scoreFeedback.textContent = `第 ${data.strokeNum + 1} 筆好像不太對喔，請看提示修正。`; //
                     scoreFeedback.style.color = '#dc3545'; //
+                     if (data.drawnPath) {
+                        userDrawnPaths.push({ path: data.drawnPath.pathString, color: '#dc3545' }); // Red for mistake
+                        redrawUserStrokeOverlay();
+                    }
                 },
                 onComplete: function(summary) { //
-                    console.log('練習完成!', summary); //
                     let mistakes = summary.totalMistakes; //
                     let score = 0; //
-
                     if (totalStrokes > 0) { //
-                        if (mistakes === 0) { //
-                            score = 100; //
-                        } else if (mistakes <= Math.ceil(totalStrokes * 0.25)) { //
-                            score = 80 - (mistakes - 1) * 5; //
-                        } else if (mistakes <= Math.ceil(totalStrokes * 0.5)) { //
-                            score = 60 - (mistakes - Math.ceil(totalStrokes * 0.25) - 1) * 5; //
-                        } else {
-                            score = Math.max(0, 40 - (mistakes - Math.ceil(totalStrokes * 0.5)) * 5); //
-                        }
+                        if (mistakes === 0) score = 100; //
+                        else if (mistakes <= Math.ceil(totalStrokes * 0.25)) score = 80 - (mistakes - 1) * 5; //
+                        else if (mistakes <= Math.ceil(totalStrokes * 0.5)) score = 60 - (mistakes - Math.ceil(totalStrokes * 0.25) - 1) * 5; //
+                        else score = Math.max(0, 40 - (mistakes - Math.ceil(totalStrokes * 0.5)) * 5); //
                         score = Math.max(0, Math.round(score)); //
                     }
-
                     if (score >= 80) { //
                         scoreFeedback.textContent = `太棒了！得分：${score} 分 (總錯誤 ${mistakes} 次)`; //
                         scoreFeedback.style.color = '#28a745'; //
@@ -180,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     resetBtn.addEventListener('click', () => { //
         if (writer && currentChar) {
-            initializeWriter(currentChar); //
+            initializeWriter(currentChar); // This will also clear the overlay
             scoreFeedback.textContent = '已重設，請重新開始。'; //
             scoreFeedback.style.color = '#17a2b8'; //
         } else if (characters.length > 0) {
@@ -198,7 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if(quizBtn) quizBtn.disabled = true; //
     }
 
-    // 新增：處理視窗大小改變的邏輯
     const debouncedResizeHandler = debounce(() => {
         if (writer && currentChar) {
             console.log('Window resized/orientation changed, re-initializing HanziWriter for char:', currentChar);

@@ -23,7 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} char - 要顯示和練習的漢字
      */
     function initializeWriter(char) {
+        console.log('initializeWriter called with char:', char);
         currentChar = char; // 更新當前字元
+        console.log('Setting currentCharText.textContent to:', char);
         currentCharText.textContent = char;
         scoreFeedback.textContent = '---';
         scoreFeedback.style.color = '#D84315'; // 更新預設回饋顏色
@@ -49,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
             drawingColor: '#29B6F6',
             drawingWidth: 14,
             onLoadCharDataSuccess: function(data) {
+                console.log('onLoadCharDataSuccess for char:', char, data);
                 totalStrokes = data.strokes.length;
                 animateBtn.disabled = false;
                 if (quizBtn) { // 檢查 quizBtn 是否存在
@@ -57,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             },
             onLoadCharDataError: function(reason) {
-                console.error('無法載入字元數據: ' + char, reason);
+                console.error('onLoadCharDataError for char:', char, reason);
                 currentCharText.textContent = `無法載入 "${char}"`;
                 scoreFeedback.textContent = '載入錯誤，請確認字元或網路。';
                 scoreFeedback.style.color = '#dc3545';
@@ -84,9 +87,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // 為手動輸入按鈕綁定事件
     if (submitManualCharBtn && manualCharInput) { // 確保元素存在
         submitManualCharBtn.addEventListener('click', () => {
+            console.log('Submit button clicked.');
             const charToLoad = manualCharInput.value.trim();
+            console.log('Character to load:', charToLoad, 'Length:', charToLoad.length);
 
             if (charToLoad && charToLoad.length === 1) {
+                console.log('Calling initializeWriter with:', charToLoad);
                 initializeWriter(charToLoad);
                 manualCharInput.value = ''; // 清空輸入框
             } else if (charToLoad.length > 1) {

@@ -1,0 +1,240 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent; /* 移除 iOS 點擊時的灰色背景 */
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    background-color: #E0F7FA; /* 淡青色 - 天空藍 */
+    padding: 20px;
+    color: #33475B; /* 深一點、略微去飽和的藍色文字 */
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.container {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 25px; /* 非常圓潤的邊角 */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0,0,0,0.08); /* 柔和的層疊陰影 */
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
+    border: 3px solid #FFF; /* 白色邊框使其從背景中突出 */
+}
+
+h1 {
+    font-size: 2.2em; /* 更大的標題 */
+    color: #FF6B6B; /* 活潑的珊瑚紅 */
+    margin-bottom: 30px;
+    font-weight: 700; /* 更粗的字重 */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1); /* 細微的文字陰影 */
+}
+
+/* 漢字專用字體 */
+.char-selection button,
+#current-char-text {
+    font-family: 'KaiTi', 'BiauKai', '標楷體', 'DFKai-SB', serif;
+}
+
+/* 漢字選擇區域 */
+.char-selection {
+    margin-bottom: 30px;
+}
+
+.char-selection p {
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    color: #1A5276; /* 友善的藍色 */
+    font-weight: 500;
+}
+
+.char-selection button {
+    font-size: 1.8em; /* 更大的漢字 */
+    padding: 12px 18px;
+    margin: 8px;
+    cursor: pointer;
+    border-radius: 15px; /* 更圓的按鈕 */
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease; /* 加入彈性動畫曲線 */
+    color: white;
+    font-weight: bold;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.char-selection button:hover {
+    transform: translateY(-4px) scale(1.08); /* 懸停時更明顯的彈起和放大 */
+    box-shadow: 0 7px 14px rgba(0,0,0,0.18);
+}
+.char-selection button:active {
+    transform: translateY(1px) scale(0.95); /* 點擊時下沉和縮小 */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 為選字按鈕分配不同顏色 */
+.char-selection button[data-char="我"] { background-color: #FF8A65; } /* 橘色 */
+.char-selection button[data-char="你"] { background-color: #4FC3F7; } /* 淺藍色 */
+.char-selection button[data-char="們"] { background-color: #AED581; } /* 淺綠色 */
+
+.char-selection button[data-char="我"].active { background-color: #FF7043; box-shadow: 0 0 12px #FF7043, inset 0 3px 5px rgba(0,0,0,0.25); transform: scale(1.05); }
+.char-selection button[data-char="你"].active { background-color: #29B6F6; box-shadow: 0 0 12px #29B6F6, inset 0 3px 5px rgba(0,0,0,0.25); transform: scale(1.05); }
+.char-selection button[data-char="們"].active { background-color: #9CCC65; box-shadow: 0 0 12px #9CCC65, inset 0 3px 5px rgba(0,0,0,0.25); transform: scale(1.05); }
+
+
+/* 目標漢字顯示 */
+#target-char-display {
+    margin: 30px 0;
+    font-size: 1.3em;
+    color: #1A5276;
+    font-weight: 500;
+}
+
+#current-char-text {
+    font-weight: bold;
+    color: #F06292; /* 活潑的粉紅色 */
+    font-size: 2.8em; /* 非常大的漢字 */
+    margin-left: 8px;
+    vertical-align: middle;
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+/* Hanzi Writer 畫布 */
+#character-target-div {
+    width: 250px;
+    height: 250px;
+    margin: 20px auto 30px auto;
+    border: 6px solid #FFCA28; /* 陽光黃的粗邊框 */
+    background-color: #FFFFF0; /* 象牙白背景，適合書寫 */
+    border-radius: 20px; /* 圓角畫布 */
+    box-shadow: 0 5px 10px rgba(0,0,0,0.12);
+    position: relative;
+}
+
+#character-target-div svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* 控制按鈕區域 */
+.controls {
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px; /* 按鈕間更大的間距 */
+}
+
+.controls button {
+    font-size: 1.25em; /* 更大的按鈕文字 */
+    padding: 16px 22px; /* 更厚實的按鈕 */
+    cursor: pointer;
+    border-radius: 18px; /* 更圓的按鈕 */
+    border: none;
+    color: white;
+    font-weight: 600;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.1); /* 更有層次的3D效果 */
+    text-shadow: 0px 1px 2px rgba(0,0,0,0.25); /* 文字陰影增加立體感 */
+}
+.controls button:hover {
+    transform: translateY(-3px) scale(1.03); /* 懸停時向上和放大 */
+    box-shadow: 0 8px 0 rgba(0,0,0,0.1);
+}
+.controls button:active {
+    transform: translateY(2px) scale(0.98); /* 點擊時下沉 */
+    box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+}
+
+#animate-btn { background-color: #4DD0E1; } /* 青色 */
+#animate-btn:hover { background-color: #26C6DA; }
+
+#quiz-btn { background-color: #7986CB; } /* 靛藍 */
+#quiz-btn:hover { background-color: #5C6BC0; }
+#quiz-btn:disabled {
+    background-color: #BDBDBD; /* 禁用時灰色 */
+    color: #757575;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.05);
+    cursor: not-allowed;
+}
+#quiz-btn:disabled:hover {
+    background-color: #BDBDBD;
+    transform: none;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.05);
+}
+
+#reset-btn { background-color: #FFB74D; } /* 橘色 (代替紅色，更友善) */
+#reset-btn:hover { background-color: #FFA726; }
+
+/* 評分區域 */
+#score-area {
+    margin-top: 35px;
+    font-size: 1.2em;
+    color: #33475B;
+    padding: 20px;
+    background-color: #FFFDE7; /* 淡黃色，像一張獎狀/便條 */
+    border-radius: 15px;
+    min-height: 3em;
+    border: 4px dashed #FFB74D; /* 橘色虛線邊框 */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    font-weight: 500;
+}
+
+#score-feedback {
+    font-weight: 700; /* 非常粗的評分文字 */
+    display: block;
+    margin-top: 5px;
+    font-size: 1.15em; /* 略大的回饋文字 */
+    /* 顏色會由 JavaScript 設定，但可以設定一個預設顏色 */
+    color: #D84315; /* 預設為暖色調 */
+}
+
+/* iPad 和較大螢幕的響應式調整 */
+@media (min-width: 600px) {
+    .container {
+        padding: 30px 40px;
+        margin-top: 30px;
+        margin-bottom: 30px;
+        max-width: 580px; /* 在平板上可以稍寬一些 */
+    }
+
+    h1 {
+        font-size: 2.6em;
+    }
+    
+    .char-selection button {
+        font-size: 2em;
+        padding: 15px 22px;
+        margin: 10px;
+    }
+
+    #current-char-text {
+        font-size: 3.5em;
+    }
+    
+    /* Hanzi Writer 畫布在較大螢幕上可以更大 */
+    #character-target-div {
+        width: 280px;
+        height: 280px;
+    }
+
+    .controls {
+        flex-direction: row; /* 水平排列按鈕 */
+        justify-content: center;
+        gap: 22px; /* 按鈕間距 */
+    }
+
+    .controls button {
+        width: auto; /* 自動寬度 */
+        min-width: 150px; /* 按鈕最小寬度 */
+        padding: 18px 25px; /* 按鈕更大 */
+        font-size: 1.3em;
+    }
+}

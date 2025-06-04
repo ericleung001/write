@@ -3,7 +3,7 @@
     margin: 0; /* */
     padding: 0; /* */
     box-sizing: border-box; /* */
-    -webkit-tap-highlight-color: transparent; /* 移除 iOS 點擊時的灰色背景 */ /* */
+    -webkit-tap-highlight-color: transparent; /* */
 }
 
 body {
@@ -12,9 +12,9 @@ body {
     justify-content: center; /* */
     align-items: flex-start; /* */
     min-height: 100vh; /* */
-    background-color: #E0F7FA; /* 淡青色 - 天空藍 */ /* */
+    background-color: #E0F7FA; /* */
     padding: 20px; /* */
-    color: #33475B; /* 深一點、略微去飽和的藍色文字 */ /* */
+    color: #33475B; /* */
     line-height: 1.6; /* */
     overflow-x: hidden; /* */
 }
@@ -22,21 +22,21 @@ body {
 .container {
     background-color: #ffffff; /* */
     padding: 25px; /* */
-    border-radius: 25px; /* 非常圓潤的邊角 */ /* */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0,0,0,0.08); /* 柔和的層疊陰影 */ /* */
+    border-radius: 25px; /* */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0,0,0,0.08); /* */
     text-align: center; /* */
     width: 100%; /* */
-    max-width: 500px; /* */
+    max-width: 500px; /* Default max-width */ /* */
     margin: 20px auto; /* */
-    border: 3px solid #FFF; /* 白色邊框使其從背景中突出 */ /* */
+    border: 3px solid #FFF; /* */
 }
 
 h1 {
-    font-size: 2.2em; /* 更大的標題 */ /* */
-    color: #FF6B6B; /* 活潑的珊瑚紅 */ /* */
+    font-size: 2.2em; /* */
+    color: #FF6B6B; /* */
     margin-bottom: 30px; /* */
-    font-weight: 700; /* 更粗的字重 */ /* */
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1); /* 細微的文字陰影 */ /* */
+    font-weight: 700; /* */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1); /* */
 }
 
 /* 漢字專用字體 */
@@ -48,119 +48,123 @@ h1 {
 
 /* 漢字選擇區域 */
 .char-selection {
-    margin-bottom: 20px;
+    margin-bottom: 20px; /* */
 }
 
 .char-selection p {
     margin-bottom: 15px; /* */
     font-size: 1.1em; /* */
-    color: #1A5276; /* 友善的藍色 */ /* */
+    color: #1A5276; /* */
     font-weight: 500; /* */
 }
 
 .char-selection button {
-    font-size: 1.8em; /* 更大的漢字 */ /* */
+    font-size: 1.8em; /* */
     padding: 12px 18px; /* */
     margin: 8px; /* */
     cursor: pointer; /* */
-    border-radius: 15px; /* 更圓的按鈕 */ /* */
-    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease; /* 加入彈性動畫曲線 */ /* */
+    border-radius: 15px; /* */
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease; /* */
     color: white; /* */
     font-weight: bold; /* */
     border: none; /* */
     box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* */
 }
 .char-selection button:hover {
-    transform: translateY(-4px) scale(1.08); /* 懸停時更明顯的彈起和放大 */ /* */
+    transform: translateY(-4px) scale(1.08); /* */
     box-shadow: 0 7px 14px rgba(0,0,0,0.18); /* */
 }
 .char-selection button:active {
-    transform: translateY(1px) scale(0.95); /* 點擊時下沉和縮小 */ /* */
+    transform: translateY(1px) scale(0.95); /* */
     box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* */
 }
 
-.char-selection button[data-char="我"] { background-color: #FF8A65; } /* 橘色 */ /* */
-.char-selection button[data-char="你"] { background-color: #4FC3F7; } /* 淺藍色 */ /* */
-.char-selection button[data-char="們"] { background-color: #AED581; } /* 淺綠色 */ /* */
+.char-selection button[data-char="我"] { background-color: #FF8A65; } /* */
+.char-selection button[data-char="你"] { background-color: #4FC3F7; } /* */
+.char-selection button[data-char="們"] { background-color: #AED581; } /* */
 
 .char-selection button[data-char="我"].active { background-color: #FF7043; box-shadow: 0 0 12px #FF7043, inset 0 3px 5px rgba(0,0,0,0.25); transform: scale(1.05); } /* */
 .char-selection button[data-char="你"].active { background-color: #29B6F6; box-shadow: 0 0 12px #29B6F6, inset 0 3px 5px rgba(0,0,0,0.25); transform: scale(1.05); } /* */
 .char-selection button[data-char="們"].active { background-color: #9CCC65; box-shadow: 0 0 12px #9CCC65, inset 0 3px 5px rgba(0,0,0,0.25); transform: scale(1.05); } /* */
 
 /* 手動輸入區域樣式 */
-.manual-char-input-area {
-    margin-top: 25px;
-    margin-bottom: 30px;
-    padding: 20px;
-    background-color: #F0F4F8;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.manual-char-input-area { /* */
+    margin-top: 25px; /* */
+    margin-bottom: 30px; /* */
+    padding: 20px; /* */
+    background-color: #F0F4F8; /* */
+    border-radius: 15px; /* */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08); /* */
+    display: flex; /* */
+    flex-direction: column; /* */
+    align-items: center; /* */
 }
 
-.manual-char-input-area p {
-    margin-bottom: 18px;
-    font-size: 1.15em;
-    color: #00796B;
-    font-weight: 500;
+.manual-char-input-area p { /* */
+    margin-bottom: 18px; /* */
+    font-size: 1.15em; /* */
+    color: #00796B; /* */
+    font-weight: 500; /* */
 }
 
-.input-button-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+.input-button-wrapper { /* */
+    display: flex; /* */
+    align-items: center; /* */
+    gap: 12px; /* */
+    width: 100%; /* Ensure it takes available width for flex items to grow/shrink */
 }
 
-#manual-char-input {
-    font-size: 1.8em;
-    padding: 10px 15px;
-    width: 100px; 
-    text-align: center;
-    border: 2px solid #B0BEC5;
-    border-radius: 12px;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    background-color: #FFFFFF;
+#manual-char-input { /* */
+    font-size: 1.8em; /* */
+    padding: 10px 15px; /* */
+    width: 100px;  /* Default width, will be adjusted in flex */ /* */
+    flex-grow: 1; /* Allow input to take more space */
+    min-width: 80px; /* Prevent from becoming too small */
+    text-align: center; /* */
+    border: 2px solid #B0BEC5; /* */
+    border-radius: 12px; /* */
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.06); /* */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* */
+    background-color: #FFFFFF; /* */
 }
 
-#manual-char-input:focus {
-    border-color: #00796B;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.06), 0 0 0 3px rgba(0, 121, 107, 0.2);
-    outline: none;
+#manual-char-input:focus { /* */
+    border-color: #00796B; /* */
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.06), 0 0 0 3px rgba(0, 121, 107, 0.2); /* */
+    outline: none; /* */
 }
 
-#submit-manual-char-btn {
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", sans-serif;
-    font-size: 1.1em;
-    padding: 12px 20px;
-    border-radius: 12px;
-    background-color: #26A69A;
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease;
-    box-shadow: 0 4px 0 #00796B;
-    text-shadow: 0px 1px 1px rgba(0,0,0,0.2);
+#submit-manual-char-btn { /* */
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", sans-serif; /* */
+    font-size: 1.1em; /* */
+    padding: 12px 20px; /* */
+    border-radius: 12px; /* */
+    background-color: #26A69A; /* */
+    color: white; /* */
+    border: none; /* */
+    cursor: pointer; /* */
+    font-weight: 600; /* */
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease; /* */
+    box-shadow: 0 4px 0 #00796B; /* */
+    text-shadow: 0px 1px 1px rgba(0,0,0,0.2); /* */
+    flex-shrink: 0; /* Prevent button from shrinking too much */
 }
 
-#submit-manual-char-btn:hover {
-    background-color: #00897B;
-    box-shadow: 0 4px 0 #004D40, 0 2px 8px rgba(0,0,0,0.1);
-    transform: translateY(-2px);
+#submit-manual-char-btn:hover { /* */
+    background-color: #00897B; /* */
+    box-shadow: 0 4px 0 #004D40, 0 2px 8px rgba(0,0,0,0.1); /* */
+    transform: translateY(-2px); /* */
 }
 
-#submit-manual-char-btn:active {
-    background-color: #00695C;
-    box-shadow: 0 2px 0 #004D40;
-    transform: translateY(1px);
+#submit-manual-char-btn:active { /* */
+    background-color: #00695C; /* */
+    box-shadow: 0 2px 0 #004D40; /* */
+    transform: translateY(1px); /* */
 }
 
 /* 目標漢字顯示 */
 #target-char-display {
-    margin: 20px 0; /* */ /* 間距調整 */
+    margin: 20px 0; /* */
     font-size: 1.3em; /* */
     color: #1A5276; /* */
     font-weight: 500; /* */
@@ -168,27 +172,45 @@ h1 {
 
 #current-char-text {
     font-weight: bold; /* */
-    color: #F06292; /* 活潑的粉紅色 */ /* */
-    font-size: 2.8em; /* 非常大的漢字 */ /* */
+    color: #F06292; /* */
+    font-size: 2.8em; /* */
     margin-left: 8px; /* */
     vertical-align: middle; /* */
     display: inline-block; /* */
     transition: transform 0.3s ease; /* */
 }
 
-/* Hanzi Writer 畫布 */
-#character-target-div {
-    width: 250px; /* */
-    height: 250px; /* */
+/* Hanzi Writer Canvas Container and Overlay */
+#hanzi-canvas-container {
+    width: 250px; 
+    height: 250px; 
     margin: 20px auto 30px auto; /* */
-    border: 6px solid #FFCA28; /* 陽光黃的粗邊框 */ /* */
-    background-color: #FFFFF0; /* 象牙白背景，適合書寫 */ /* */
-    border-radius: 20px; /* 圓角畫布 */ /* */
+    border: 6px solid #FFCA28; /* */
+    background-color: #FFFFF0; /* */
+    border-radius: 20px; /* */
     box-shadow: 0 5px 10px rgba(0,0,0,0.12); /* */
-    position: relative; /* */
+    position: relative; 
+    overflow: hidden; 
 }
 
-#character-target-div svg {
+#character-target-div { /* HanziWriter's direct target */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#user-stroke-overlay { /* User's stroke layer */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; 
+}
+
+#character-target-div svg { /* SVG created by HanziWriter */
     width: 100%; /* */
     height: 100%; /* */
     display: block; /* */
@@ -199,37 +221,37 @@ h1 {
     margin-top: 25px; /* */
     display: flex; /* */
     flex-direction: column; /* */
-    gap: 18px; /* 按鈕間更大的間距 */ /* */
+    gap: 18px; /* */
 }
 
 .controls button {
-    font-size: 1.25em; /* 更大的按鈕文字 */ /* */
-    padding: 16px 22px; /* 更厚實的按鈕 */ /* */
+    font-size: 1.25em; /* */
+    padding: 16px 22px; /* */
     cursor: pointer; /* */
-    border-radius: 18px; /* 更圓的按鈕 */ /* */
+    border-radius: 18px; /* */
     border: none; /* */
     color: white; /* */
     font-weight: 600; /* */
     transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease; /* */
-    box-shadow: 0 5px 0 rgba(0,0,0,0.1); /* 更有層次的3D效果 */ /* */
-    text-shadow: 0px 1px 2px rgba(0,0,0,0.25); /* 文字陰影增加立體感 */ /* */
+    box-shadow: 0 5px 0 rgba(0,0,0,0.1); /* */
+    text-shadow: 0px 1px 2px rgba(0,0,0,0.25); /* */
 }
 .controls button:hover {
-    transform: translateY(-3px) scale(1.03); /* 懸停時向上和放大 */ /* */
+    transform: translateY(-3px) scale(1.03); /* */
     box-shadow: 0 8px 0 rgba(0,0,0,0.1); /* */
 }
 .controls button:active {
-    transform: translateY(2px) scale(0.98); /* 點擊時下沉 */ /* */
+    transform: translateY(2px) scale(0.98); /* */
     box-shadow: 0 2px 0 rgba(0,0,0,0.1); /* */
 }
 
-#animate-btn { background-color: #4DD0E1; } /* 青色 */ /* */
+#animate-btn { background-color: #4DD0E1; } /* */
 #animate-btn:hover { background-color: #26C6DA; } /* */
 
-#quiz-btn { background-color: #7986CB; } /* 靛藍 */ /* */
+#quiz-btn { background-color: #7986CB; } /* */
 #quiz-btn:hover { background-color: #5C6BC0; } /* */
 #quiz-btn:disabled {
-    background-color: #BDBDBD; /* 禁用時灰色 */ /* */
+    background-color: #BDBDBD; /* */
     color: #757575; /* */
     box-shadow: 0 5px 0 rgba(0,0,0,0.05); /* */
     cursor: not-allowed; /* */
@@ -240,7 +262,7 @@ h1 {
     box-shadow: 0 5px 0 rgba(0,0,0,0.05); /* */
 }
 
-#reset-btn { background-color: #FFB74D; } /* 橘色 (代替紅色，更友善) */ /* */
+#reset-btn { background-color: #FFB74D; } /* */
 #reset-btn:hover { background-color: #FFA726; } /* */
 
 /* 評分區域 */
@@ -249,159 +271,76 @@ h1 {
     font-size: 1.2em; /* */
     color: #33475B; /* */
     padding: 20px; /* */
-    background-color: #FFFDE7; /* 淡黃色，像一張獎狀/便條 */ /* */
+    background-color: #FFFDE7; /* */
     border-radius: 15px; /* */
     min-height: 3em; /* */
-    border: 4px dashed #FFB74D; /* 橘色虛線邊框 */ /* */
+    border: 4px dashed #FFB74D; /* */
     box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* */
     font-weight: 500; /* */
 }
 
 #score-feedback {
-    font-weight: 700; /* 非常粗的評分文字 */ /* */
+    font-weight: 700; /* */
     display: block; /* */
     margin-top: 5px; /* */
-    font-size: 1.15em; /* 略大的回饋文字 */ /* */
-    color: #D84315; /* 預設為暖色調 */ /* */
+    font-size: 1.15em; /* */
+    color: #D84315; /* */
 }
 
-/* 原有的 600px 斷點樣式 */
-@media (min-width: 600px) {
+/* 響應式調整 */
+@media (min-width: 600px) { /* */
     .container {
         padding: 30px 40px; /* */
         margin-top: 30px; /* */
         margin-bottom: 30px; /* */
-        max-width: 580px; /* 在平板上可以稍寬一些 */ /* */
+        max-width: 580px; /* */
     }
-
-    h1 {
-        font-size: 2.6em; /* */
-    }
+    h1 { font-size: 2.6em; } /* */
+    .char-selection button { font-size: 2em; padding: 15px 22px; margin: 10px; } /* */
+    .manual-char-input-area p { font-size: 1.2em; } /* */
+    #manual-char-input { font-size: 2em; width: 120px; padding: 12px 18px; } /* */
+    #submit-manual-char-btn { font-size: 1.25em; padding: 14px 22px; } /* */
+    #current-char-text { font-size: 3.5em; } /* */
     
-    .char-selection button {
-        font-size: 2em; /* */
-        padding: 15px 22px; /* */
-        margin: 10px; /* */
-    }
-    
-    .manual-char-input-area p { /* 在600px時也調整一下 */
-        font-size: 1.2em;
-    }
-
-    #manual-char-input { /* 在600px時也調整一下 */
-        font-size: 2em; 
-        width: 120px; 
-        padding: 12px 18px;
-    }
-
-    #submit-manual-char-btn { /* 在600px時也調整一下 */
-        font-size: 1.25em; 
-        padding: 14px 22px;
-    }
-
-    #current-char-text {
-        font-size: 3.5em; /* */
-    }
-    
-    #character-target-div { /* 在600px時畫布大小 */
+    #hanzi-canvas-container { /* Changed from #character-target-div */ /* */
         width: 280px; /* */
         height: 280px; /* */
     }
 
     .controls {
-        flex-direction: row; /* 水平排列按鈕 */ /* */
+        flex-direction: row; /* */
         justify-content: center; /* */
-        gap: 22px; /* 按鈕間距 */ /* */
+        gap: 22px; /* */
     }
-
     .controls button {
-        width: auto; /* 自動寬度 */ /* */
-        min-width: 150px; /* 按鈕最小寬度 */ /* */
-        padding: 18px 25px; /* 按鈕更大 */ /* */
+        width: auto; /* */
+        min-width: 150px; /* */
+        padding: 18px 25px; /* */
         font-size: 1.3em; /* */
     }
 }
 
-/* 新增：針對橫向 iPad 及更大螢幕的兩欄佈局 */
-@media screen and (min-width: 900px) and (orientation: landscape) {
-    .container {
-        max-width: 1100px; 
-        margin-top: 20px; 
-        margin-bottom: 20px; 
-    }
-
-    .layout-wrapper-ipad-landscape {
-        display: flex;
-        justify-content: space-between;
-        gap: 30px; 
-    }
-
-    .left-column-ipad {
-        flex-basis: 35%; 
-        max-width: 380px; 
-        display: flex;
-        flex-direction: column;
-        gap: 20px; 
-    }
-
-    .right-column-ipad {
-        flex-basis: 60%; 
-        display: flex;
-        flex-direction: column;
-        align-items: center; 
-    }
-
-    .char-selection,
-    .manual-char-input-area {
-        width: 100%; 
-        margin-top: 0; 
-        margin-bottom: 0; 
-    }
+@media screen and (min-width: 900px) and (orientation: landscape) { /* */
+    .container { max-width: 1100px; margin-top: 20px; margin-bottom: 20px; } /* */
+    .layout-wrapper-ipad-landscape { display: flex; justify-content: space-between; gap: 30px; } /* */
+    .left-column-ipad { flex-basis: 35%; max-width: 380px; display: flex; flex-direction: column; gap: 20px; } /* */
+    .right-column-ipad { flex-basis: 60%; display: flex; flex-direction: column; align-items: center; } /* */
+    .char-selection, .manual-char-input-area { width: 100%; margin-top: 0; margin-bottom: 0; } /* */
+    .char-selection button { font-size: 1.6em; padding: 10px 15px; margin: 6px; } /* */
+    .input-button-wrapper { width: 100%; } /* */
+    #manual-char-input { font-size: 1.5em; flex-grow: 1; min-width: 80px; } /* */
+    #submit-manual-char-btn { padding: 10px 15px; font-size: 1em; flex-shrink: 0; } /* */
     
-    .char-selection button {
-        font-size: 1.6em; 
-        padding: 10px 15px;
-        margin: 6px;
-    }
-    /* 確保手動輸入區域內的元素在空間變化時能良好適應 */
-    .input-button-wrapper {
-        width: 100%; /* 讓包裹層佔滿左欄寬度 */
-    }
-    #manual-char-input {
-        font-size: 1.5em; 
-        flex-grow: 1; /* 讓輸入框佔據更多可用空間 */
-        min-width: 80px; /* 最小寬度，防止過窄 */
-    }
-    #submit-manual-char-btn {
-        padding: 10px 15px; 
-        font-size: 1em;
-        flex-shrink: 0; /* 防止按鈕被過度壓縮 */
+    #hanzi-canvas-container { /* Changed from #character-target-div */ /* */
+        width: 100%; /* */
+        max-width: 380px; /* */
+        height: auto;   /* */
+        aspect-ratio: 1 / 1;  /* */
+        margin: 15px auto 25px auto;  /* */
+        border-width: 5px;  /* */
     }
 
-    #character-target-div {
-        width: 100%; 
-        max-width: 380px; 
-        height: auto;   
-        aspect-ratio: 1 / 1; 
-        margin: 15px auto 25px auto; 
-        border-width: 5px; 
-    }
-    
-    .controls {
-        /* 在600px已是 row, justify-content: center，這裡可以保持或微調 */
-        width: 100%; 
-        max-width: 450px;
-        margin-top: 15px; 
-    }
-    .controls button {
-        font-size: 1.1em; 
-        padding: 12px 18px;
-        min-width: 120px; 
-    }
-
-    #score-area {
-        width: 100%;
-        max-width: 450px; 
-        margin-top: 20px; 
-    }
+    .controls { width: 100%; max-width: 450px; margin-top: 15px; } /* */
+    .controls button { font-size: 1.1em; padding: 12px 18px; min-width: 120px; } /* */
+    #score-area { width: 100%; max-width: 450px; margin-top: 20px; } /* */
 }

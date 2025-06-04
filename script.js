@@ -1,6 +1,14 @@
 let cantoneseVoice = null;
 let voicesLoaded = false;
 
+// 新增：按鈕顏色調色盤
+const BUTTON_COLOR_PALETTE = [
+    '#FF8A65', '#4FC3F7', '#AED581', '#FFD54F', '#BA68C8',
+    '#4DB6AC', '#7986CB', '#90A4AE', '#A1887F', '#F06292',
+    '#FFAB40', '#40C4FF', '#69F0AE', '#FFEE58', '#CE93D8'
+];
+let lastColorIndex = -1; // 用於嘗試避免相鄰按鈕顏色太接近或重複
+
 function loadAvailableVoices() {
     if (!('speechSynthesis' in window)) {
         console.warn('此瀏覽器不支援語音合成 (Speech Synthesis)。');
@@ -84,7 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!char || char.length !== 1) return false;
         const userChars = loadUserChars();
         if (PREDEFINED_CHARS.includes(char) || userChars.includes(char)) {
-            console.log(`字元 "${char}" 已存在於預設列表或使用者列表中。`);
             return false; 
         }
         userChars.push(char);
@@ -113,13 +120,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (displayChars.length === 0) {
             charButtonsWrapper.innerHTML = '<p style="font-size: 0.9em; color: #666;">暫無字元，請手動輸入添加。</p>';
-            if (!currentChar && PREDEFINED_CHARS.length === 0 && userChars.length === 0){ // 如果沒有任何字元了
-                 initializeWriter(''); // 傳遞空字串以清空畫板和相關狀態
+            if (!currentChar){ 
+                 initializeWriter('');
             }
             return;
         }
         
-        displayChars.forEach(char => {
+        displayChars.forEach((char, index) => { // 增加 index 以便選擇顏色
             const button = document.createElement('button');
             button.classList.add('char-btn'); 
             if (char === currentChar) {
@@ -127,6 +134,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             button.dataset.char = char;
             button.textContent = char;
+
+            // 設定隨機背景顏色
+            let colorIndex;
+            if (PREDEFINED_CHARS.includes(char)) {
+                // 為預設字元保留之前的固定顏色 (如果需要的話，或者也讓它們隨機)
+                // 這裡我讓預設字元也參與隨機顏色，以符合「每個字隨機顯示不同顏色」
+                colorIndex = (index + PREDEFINED_CHARS.indexOf(char)) % BUTTON_COLOR_PALETTE.length; // 簡單的分配方式
+            } else {
+                 // 簡單循環使用調色盤顏色，避免緊鄰的顏色相同
+                lastColorIndex = (lastColorIndex + 1) % BUTTON_COLOR_PALETTE.length;
+                colorIndex = lastColorIndex;
+            }
+            button.style.backgroundColor = BUTTON_COLOR_PALETTE[colorIndex];
+
 
             button.addEventListener('click', () => {
                 charButtonsWrapper.querySelectorAll('.char-btn.active').forEach(b => b.classList.remove('active'));
@@ -148,9 +169,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         deleteUserChar(char);
                         
                         if (currentChar === char) {
-                            const remainingUserChars = loadUserChars(); // 獲取刪除後的使用者字元列表
+                            const remainingUserChars = loadUserChars(); 
                             const nextCharToLoad = PREDEFINED_CHARS.length > 0 ? PREDEFINED_CHARS[0] : (remainingUserChars[0] || '');
-                            initializeWriter(nextCharToLoad); // 會更新 currentChar
+                            initializeWriter(nextCharToLoad); 
                         }
                         renderCharButtons(); 
                     }
@@ -162,23 +183,60 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+
     function speakCharacterInCantonese(character) {
-        if (!('speechSynthesis' in window)) { console.warn('語音合成功能不可用。'); return; }
-        if (!cantoneseVoice && voicesLoaded) { loadAvailableVoices(); }
-        const utterance = new SpeechSynthesisUtterance(character);
-        utterance.lang = 'zh-HK'; utterance.rate = 0.85; utterance.pitch = 1;
-        if (cantoneseVoice) {
-            utterance.voice = cantoneseVoice;
-        } else {
-            const allVoices = speechSynthesis.getVoices();
-            const fallbackChineseVoice = allVoices.find(voice => voice.lang.startsWith('zh-CN')) || allVoices.find(voice => voice.lang.startsWith('zh-TW')) || allVoices.find(voice => voice.lang.startsWith('zh-'));
-            if (fallbackChineseVoice) {
-                utterance.voice = fallbackChineseVoice; utterance.lang = fallbackChineseVoice.lang;
-                console.warn(`未找到廣東話，使用備選: "${fallbackChineseVoice.name}" (${fallbackChineseVoice.lang})`);
-            } else { console.warn(`未找到廣東話或備選中文語音`); }
+        console.log("speakCharacterInCantonese called for:", character); // 調試日誌
+        if (!character) {
+            console.warn("嘗試朗讀的字元為空。");
+            return;
         }
-        speechSynthesis.cancel(); speechSynthesis.speak(utterance);
-        utterance.onerror = (e) => console.error('語音合成錯誤:', e.error);
+        if (!('speechSynthesis' in window)) { console.warn('語音合成功能不可用。'); return; }
+        
+        if (!voicesLoaded) { // 如果 voicesLoaded 仍為 false，嘗試強制更新一次
+            console.log("語音列表尚未標記為已載入，嘗試再次獲取...");
+            loadAvailableVoices(); // 確保在朗讀前嘗試獲取最新的語音列表
+        }
+        // 即使 loadAvailableVoices 被呼叫，cantoneseVoice 也可能仍然是 null
+        // 所以在真正使用前再次檢查
+        let voiceToUse = cantoneseVoice;
+        if (!voiceToUse) {
+            const allVoices = speechSynthesis.getVoices(); // 在朗讀前即時獲取
+            if (allVoices.length > 0 && !cantoneseVoice) { // 只有在之前 cantoneseVoice 未找到時才重新查找
+                 cantoneseVoice = allVoices.find(voice => voice.lang === 'zh-HK');
+                 voiceToUse = cantoneseVoice;
+            }
+
+            if (voiceToUse) {
+                 console.log('在朗讀前找到廣東話語音:', voiceToUse.name);
+            } else {
+                 const fallbackChineseVoice = allVoices.find(voice => voice.lang.startsWith('zh-CN')) || allVoices.find(voice => voice.lang.startsWith('zh-TW')) || allVoices.find(voice => voice.lang.startsWith('zh-'));
+                if (fallbackChineseVoice) {
+                    voiceToUse = fallbackChineseVoice;
+                    console.warn(`未找到廣東話，使用備選: "${voiceToUse.name}" (${voiceToUse.lang})`);
+                } else { 
+                    console.warn(`未找到廣東話或備選中文語音，將使用瀏覽器預設語音。`);
+                }
+            }
+        }
+
+
+        const utterance = new SpeechSynthesisUtterance(character);
+        if (voiceToUse) {
+            utterance.voice = voiceToUse;
+            utterance.lang = voiceToUse.lang; // 使用選定語音的 lang 屬性
+        } else {
+            utterance.lang = 'zh-HK'; // 如果連備選都沒有，還是嘗試設定為 zh-HK
+        }
+        utterance.rate = 0.85;   
+        utterance.pitch = 1;    
+        
+        speechSynthesis.cancel(); // 取消之前的朗讀
+        console.log("準備朗讀:", utterance);
+        speechSynthesis.speak(utterance);
+
+        utterance.onstart = () => console.log("朗讀開始:", character);
+        utterance.onend = () => console.log("朗讀結束:", character);
+        utterance.onerror = (e) => console.error('語音合成錯誤:', e.error, "朗讀的字:", character);
     }
 
     function redrawUserStrokeOverlay() { 
@@ -198,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initializeWriter(char) {
-        if (!char) { // 處理沒有字元可載入的情況
+        if (!char) { 
             currentCharText.textContent = '-';
             if(targetDiv) targetDiv.innerHTML = '';
             if (userStrokeOverlay) userStrokeOverlay.innerHTML = '';
@@ -210,20 +268,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 quizBtn.textContent = '開始練習';
             }
             currentChar = ''; 
-            // 確保在沒有字元時，按鈕區域也正確反映狀態 (renderCharButtons 已處理)
             if (charButtonsWrapper.querySelectorAll('.char-btn').length === 0) {
-                 renderCharButtons(); // 確保顯示 "暫無字元" 提示
+                 renderCharButtons(); 
             }
             return;
         }
 
         console.log('initializeWriter called with char:', char);
-        currentChar = char; // 更新 currentChar
-        currentCharText.textContent = char;
-        scoreFeedback.textContent = '---';
-        scoreFeedback.style.color = '#D84315';
+        currentChar = char; 
+        currentCharText.textContent = char; 
+        scoreFeedback.textContent = '---'; 
+        scoreFeedback.style.color = '#D84315'; 
 
-        targetDiv.innerHTML = '';
+        targetDiv.innerHTML = ''; 
         
         if (userStrokeOverlay) {
             userStrokeOverlay.innerHTML = ''; 
@@ -240,35 +297,34 @@ document.addEventListener('DOMContentLoaded', () => {
         writer = HanziWriter.create(targetDiv, char, {
             width: finalCanvasWidth,  
             height: finalCanvasHeight, 
-            padding: 10,
-            showOutline: true,
-            showCharacter: true,
-            strokeAnimationSpeed: 1,
-            delayBetweenStrokes: 250,
-            strokeColor: '#4A4A4A',
-            highlightColor: '#F06292',
-            outlineColor: '#FFD180',
-            drawingColor: '#29B6F6',
-            drawingWidth: 14,
-            onLoadCharDataSuccess: function(data) {
-                totalStrokes = data.strokes.length;
-                animateBtn.disabled = false;
-                if (quizBtn) {
-                    quizBtn.disabled = false;
-                    quizBtn.textContent = '開始練習';
+            padding: 10, 
+            showOutline: true, 
+            showCharacter: true, 
+            strokeAnimationSpeed: 1, 
+            delayBetweenStrokes: 250, 
+            strokeColor: '#4A4A4A', 
+            highlightColor: '#F06292', 
+            outlineColor: '#FFD180', 
+            drawingColor: '#29B6F6', 
+            drawingWidth: 14, 
+            onLoadCharDataSuccess: function(data) { 
+                totalStrokes = data.strokes.length; 
+                animateBtn.disabled = false; 
+                if (quizBtn) { 
+                    quizBtn.disabled = false; 
+                    quizBtn.textContent = '開始練習'; 
                 }
             },
-            onLoadCharDataError: function(reason) {
-                currentCharText.textContent = `無法載入 "${char}"`;
-                scoreFeedback.textContent = '載入錯誤，請確認字元或網路。';
-                scoreFeedback.style.color = '#dc3545';
-                animateBtn.disabled = true;
-                if (quizBtn) {
-                    quizBtn.disabled = true; //
+            onLoadCharDataError: function(reason) { 
+                currentCharText.textContent = `無法載入 "${char}"`; 
+                scoreFeedback.textContent = '載入錯誤，請確認字元或網路。'; 
+                scoreFeedback.style.color = '#dc3545'; 
+                animateBtn.disabled = true; 
+                if (quizBtn) { 
+                    quizBtn.disabled = true; 
                 }
             }
         });
-        // Call renderCharButtons to ensure the correct button is highlighted as active
         renderCharButtons();
     }
 
@@ -277,23 +333,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const charToLoad = manualCharInput.value.trim();
             if (charToLoad && charToLoad.length === 1) {
                 // 先將其設為當前字元並嘗試初始化
-                // initializeWriter 會更新 currentChar
+                // initializeWriter 會更新 currentChar 並觸發 renderCharButtons
                 initializeWriter(charToLoad); 
                 
-                // 然後嘗試添加到 localStorage (如果不是預設字且不存在於使用者列表)
-                // addUserChar 內部會檢查重複
                 const addedToStorage = addUserChar(charToLoad);
                 if (addedToStorage) {
-                    renderCharButtons(); // 如果成功添加到 localStorage，則重新渲染按鈕列表
-                                         // initializeWriter 內部已調用 renderCharButtons，這裡可能多餘，但確保狀態一致
+                    // 如果是新字且成功加入 localStorage，initializeWriter 內部已調用 renderCharButtons
+                    // 所以這裡可能不需要再次調用，或者確保 initializeWriter 最後調用 renderCharButtons
+                    // initializeWriter 最後確實調用了 renderCharButtons，所以這裡可以不用再調用
+                } else {
+                    // 如果字元已存在，initializeWriter 也會處理並高亮它
+                    // 也確保 renderCharButtons 被調用以正確高亮
+                    renderCharButtons();
                 }
                 manualCharInput.value = '';
             } else if (charToLoad.length > 1) {
-                scoreFeedback.textContent = '請只輸入一個字進行練習。';
-                scoreFeedback.style.color = '#dc3545';
+                scoreFeedback.textContent = '請只輸入一個字進行練習。'; 
+                scoreFeedback.style.color = '#dc3545'; 
             } else {
-                scoreFeedback.textContent = '請輸入一個繁體中文字。';
-                scoreFeedback.style.color = '#dc3545';
+                scoreFeedback.textContent = '請輸入一個繁體中文字。'; 
+                scoreFeedback.style.color = '#dc3545'; 
             }
         });
         manualCharInput.addEventListener('keypress', (event) => {
@@ -304,87 +363,108 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    animateBtn.addEventListener('click', () => { /* ... (與上一版本相同) ... */ });
+    animateBtn.addEventListener('click', () => { 
+        if (writer) writer.animateCharacter(); 
+        scoreFeedback.textContent = '請觀察筆順。'; 
+        scoreFeedback.style.color = '#17a2b8'; 
+    }); 
     
-    quizBtn.addEventListener('click', () => { //
-        if (writer) { //
-            if (quizBtn.textContent === '開始練習' || quizBtn.textContent === '重新練習') { //
+    quizBtn.addEventListener('click', () => { 
+        if (writer) { 
+            if (quizBtn.textContent === '開始練習' || quizBtn.textContent === '重新練習') { 
                 if (userStrokeOverlay) userStrokeOverlay.innerHTML = '';
                 userDrawnPaths = [];
             }
-            scoreFeedback.textContent = '請依照筆順書寫。'; //
-            scoreFeedback.style.color = '#17a2b8'; //
-            quizBtn.textContent = '練習中...'; //
-            quizBtn.disabled = true; //
+            scoreFeedback.textContent = '請依照筆順書寫。'; 
+            scoreFeedback.style.color = '#17a2b8'; 
+            quizBtn.textContent = '練習中...'; 
+            quizBtn.disabled = true; 
 
-            writer.quiz({ //
-                onCorrectStroke: function(data) { /* ... (與上一版本相同, 含 redrawUserStrokeOverlay) ... */ 
-                    scoreFeedback.textContent = `第 ${data.strokeNum + 1} 筆正確！(${data.strokeNum + 1}/${totalStrokes})`;
-                    scoreFeedback.style.color = '#28a745';
+            writer.quiz({ 
+                onCorrectStroke: function(data) { 
+                    scoreFeedback.textContent = `第 ${data.strokeNum + 1} 筆正確！(${data.strokeNum + 1}/${totalStrokes})`; 
+                    scoreFeedback.style.color = '#28a745'; 
                     if (data.drawnPath) {
                         userDrawnPaths.push({ path: data.drawnPath.pathString, color: '#28a745' }); 
                         redrawUserStrokeOverlay();
                     }
                 },
-                onMistake: function(data) { /* ... (與上一版本相同, 含 redrawUserStrokeOverlay) ... */ 
-                    scoreFeedback.textContent = `第 ${data.strokeNum + 1} 筆好像不太對喔，請看提示修正。`;
-                    scoreFeedback.style.color = '#dc3545';
+                onMistake: function(data) { 
+                    scoreFeedback.textContent = `第 ${data.strokeNum + 1} 筆好像不太對喔，請看提示修正。`; 
+                    scoreFeedback.style.color = '#dc3545'; 
                      if (data.drawnPath) {
                         userDrawnPaths.push({ path: data.drawnPath.pathString, color: '#dc3545' }); 
                         redrawUserStrokeOverlay();
                     }
                 },
-                onComplete: function(summary) { /* ... (與上一版本相同, 含 speakCharacterInCantonese) ... */ 
-                    let mistakes = summary.totalMistakes;
-                    let score = 0;
-                    if (totalStrokes > 0) { /* ... */ }
-                    if (score >= 80) { /* ... */ }
-                    else if (score >= 60) { /* ... */ }
-                    else { /* ... */ }
-                    quizBtn.textContent = '重新練習';
-                    quizBtn.disabled = false;
-                    if (currentChar) { speakCharacterInCantonese(currentChar); }
+                onComplete: function(summary) { 
+                    let mistakes = summary.totalMistakes; 
+                    let score = 0; 
+                    if (totalStrokes > 0) { 
+                        if (mistakes === 0) score = 100; 
+                        else if (mistakes <= Math.ceil(totalStrokes * 0.25)) score = 80 - (mistakes - 1) * 5; 
+                        else if (mistakes <= Math.ceil(totalStrokes * 0.5)) score = 60 - (mistakes - Math.ceil(totalStrokes * 0.25) - 1) * 5; 
+                        else score = Math.max(0, 40 - (mistakes - Math.ceil(totalStrokes * 0.5)) * 5); 
+                        score = Math.max(0, Math.round(score)); 
+                    }
+                    if (score >= 80) { 
+                        scoreFeedback.textContent = `太棒了！得分：${score} 分 (總錯誤 ${mistakes} 次)`; 
+                        scoreFeedback.style.color = '#28a745'; 
+                    } else if (score >= 60) { 
+                        scoreFeedback.textContent = `做得不錯！得分：${score} 分 (總錯誤 ${mistakes} 次)`; 
+                        scoreFeedback.style.color = '#ffc107'; 
+                    } else {
+                        scoreFeedback.textContent = `再接再厲！得分：${score} 分 (總錯誤 ${mistakes} 次)`; 
+                        scoreFeedback.style.color = '#dc3545'; 
+                    }
+                    quizBtn.textContent = '重新練習'; 
+                    quizBtn.disabled = false; 
+
+                    console.log("測驗完成，準備朗讀字元:", currentChar); // 調試日誌
+                    if (currentChar) { 
+                        speakCharacterInCantonese(currentChar);
+                    }
                 }
             });
         }
     });
 
-    resetBtn.addEventListener('click', () => { //
-        // 確保 currentChar 有一個有效值去重設
+    resetBtn.addEventListener('click', () => { 
         let charToReset = currentChar;
-        if (!charToReset) { // 如果 currentChar 為空 (例如所有字都被刪除了)
+        if (!charToReset) { 
             const userChars = loadUserChars();
             charToReset = PREDEFINED_CHARS.length > 0 ? PREDEFINED_CHARS[0] : (userChars[0] || '');
         }
         
-        if (charToReset) { // 只有在確定有字可以重設時才執行
+        if (charToReset) { 
             initializeWriter(charToReset); 
-            scoreFeedback.textContent = '已重設，請重新開始。'; //
-            scoreFeedback.style.color = '#17a2b8'; //
+            scoreFeedback.textContent = '已重設，請重新開始。'; 
+            scoreFeedback.style.color = '#17a2b8'; 
         } else {
-             // 如果仍然沒有字可以重設 (例如列表為空)
-            initializeWriter(''); // 清空畫板並顯示提示
+            initializeWriter(''); 
         }
     });
     
     renderCharButtons(); 
     const initialUserChars = loadUserChars();
     const charToLoadInitially = PREDEFINED_CHARS[0] || initialUserChars[0] || '';
-    initializeWriter(charToLoadInitially);
+    if (charToLoadInitially) { // 只有在確定有字元可載入時才初始化
+        initializeWriter(charToLoadInitially);
+    } else {
+        initializeWriter(''); // 如果列表為空，則使用空字串進行初始化以顯示提示
+    }
 
 
     const debouncedResizeHandler = debounce(() => {
         const isQuizActive = quizBtn && quizBtn.disabled === true && quizBtn.textContent === '練習中...';
         if (isQuizActive) {
-            console.log('視窗大小改變，但測驗進行中。HanziWriter 不重新初始化。');
+            console.log('視窗大小改變，但測驗正在進行中。HanziWriter 不重新初始化。');
             return; 
         }
         if (writer && currentChar) {
             console.log('視窗大小/方向改變，重新初始化 HanziWriter (字元:', currentChar, ')');
             initializeWriter(currentChar);
         } else if (currentChar === '' && (PREDEFINED_CHARS.length > 0 || loadUserChars().length > 0)) {
-            // 如果當前字元為空，但仍有字可以載入 (例如全部刪除後又添加了新字，但尚未選中)
-            // 則嘗試載入第一個可用的字
             const nextCharToLoad = PREDEFINED_CHARS[0] || loadUserChars()[0] || '';
             if(nextCharToLoad) initializeWriter(nextCharToLoad);
         }

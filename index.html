@@ -8,31 +8,42 @@
 </head>
 <body>
     <div class="container">
-        <h1>繁體中文寫字學習v3</h1>
-        <div class="char-selection">
-            <p>請選擇要練習的字：</p>
-            <button class="char-btn" data-char="我">我</button>
-            <button class="char-btn" data-char="你">你</button>
-            <button class="char-btn" data-char="們">們</button>
-        </div> <div class="manual-char-input-area">
-            <p>或在此輸入單個繁體字進行練習：</p>
-            <div class="input-button-wrapper"> <input type="text" id="manual-char-input" placeholder="輸入單字" maxlength="1">
-                <button id="submit-manual-char-btn">確定</button>
+        <h1>繁體中文寫字學習v4</h1>
+
+        <div class="layout-wrapper-ipad-landscape">
+            
+            <div class="left-column-ipad">
+                <div class="char-selection">
+                    <p>請選擇要練習的字：</p>
+                    <button class="char-btn" data-char="我">我</button>
+                    <button class="char-btn" data-char="你">你</button>
+                    <button class="char-btn" data-char="們">們</button>
+                </div>
+                <div class="manual-char-input-area">
+                    <p>或在此輸入單個繁體字進行練習：</p>
+                    <div class="input-button-wrapper">
+                        <input type="text" id="manual-char-input" placeholder="輸入單字" maxlength="1">
+                        <button id="submit-manual-char-btn">確定</button>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div id="target-char-display">
-            <p>請練習寫：<span id="current-char-text"></span></p>
-        </div>
-        <div id="character-target-div"></div>
-        <div class="controls">
-            <button id="animate-btn">看動畫</button>
-            <button id="quiz-btn">開始練習</button>
-            <button id="reset-btn">重設</button>
-        </div>
-        <div id="score-area">
-            <p>評分：<span id="score-feedback">---</span></p>
-        </div>
-    </div>
+
+            <div class="right-column-ipad">
+                <div id="target-char-display">
+                    <p>請練習寫：<span id="current-char-text"></span></p>
+                </div>
+                <div id="character-target-div"></div>
+                <div class="controls">
+                    <button id="animate-btn">看動畫</button>
+                    <button id="quiz-btn">開始練習</button>
+                    <button id="reset-btn">重設</button>
+                </div>
+                <div id="score-area">
+                    <p>評分：<span id="score-feedback">---</span></p>
+                </div>
+            </div>
+
+        </div> </div>
 
     <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.6/dist/hanzi-writer.min.js"></script>
     <script src="script.js"></script>

@@ -41,13 +41,14 @@ h1 {
 
 /* 漢字專用字體 */
 .char-selection button,
-#current-char-text {
+#current-char-text,
+#manual-char-input { /* 也套用到手動輸入框 */
     font-family: 'KaiTi', 'BiauKai', '標楷體', 'DFKai-SB', serif;
 }
 
 /* 漢字選擇區域 */
 .char-selection {
-    margin-bottom: 30px;
+    margin-bottom: 20px; /* 調整下方間距 */
 }
 
 .char-selection p {
@@ -87,10 +88,69 @@ h1 {
 .char-selection button[data-char="你"].active { background-color: #29B6F6; box-shadow: 0 0 12px #29B6F6, inset 0 3px 5px rgba(0,0,0,0.25); transform: scale(1.05); }
 .char-selection button[data-char="們"].active { background-color: #9CCC65; box-shadow: 0 0 12px #9CCC65, inset 0 3px 5px rgba(0,0,0,0.25); transform: scale(1.05); }
 
+/* 手動輸入區域樣式 */
+.manual-char-input-area {
+    margin-top: 20px;
+    margin-bottom: 25px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.manual-char-input-area p {
+    margin-bottom: 12px;
+    font-size: 1.1em;
+    color: #1A5276;
+    font-weight: 500;
+}
+
+#manual-char-input {
+    font-size: 1.6em;
+    padding: 8px 12px;
+    width: 100px; /* 調整寬度以適應單個大字元 */
+    max-width: 120px;
+    text-align: center;
+    border: 2px solid #AED581;
+    border-radius: 10px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#manual-char-input:focus {
+    border-color: #FFB74D;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1), 0 0 8px rgba(255, 183, 77, 0.5);
+    outline: none;
+}
+
+#submit-manual-char-btn {
+    font-size: 1.1em;
+    padding: 10px 18px;
+    margin-left: 10px;
+    border-radius: 10px;
+    background-color: #81C784;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    vertical-align: baseline; /* 讓按鈕與輸入框對齊好一些 */
+}
+
+#submit-manual-char-btn:hover {
+    background-color: #66BB6A;
+    transform: translateY(-1px);
+}
+
+#submit-manual-char-btn:active {
+    background-color: #5A9C5D;
+    transform: translateY(0px);
+}
+
 
 /* 目標漢字顯示 */
 #target-char-display {
-    margin: 30px 0;
+    margin: 20px 0; /* 調整間距 */
     font-size: 1.3em;
     color: #1A5276;
     font-weight: 500;
@@ -213,6 +273,17 @@ h1 {
         font-size: 2em;
         padding: 15px 22px;
         margin: 10px;
+    }
+
+    #manual-char-input {
+        font-size: 1.8em; /* 平板上輸入框文字也可以大一些 */
+        width: 120px;
+        padding: 10px 15px;
+    }
+
+    #submit-manual-char-btn {
+        font-size: 1.2em; /* 平板上按鈕文字也可以大一些 */
+        padding: 12px 20px;
     }
 
     #current-char-text {

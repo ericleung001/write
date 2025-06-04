@@ -1,3 +1,42 @@
+let cantoneseVoice = null;
+let voicesLoaded = false;
+
+function loadAvailableVoices() {
+    if (!('speechSynthesis' in window)) {
+        console.warn('此瀏覽器不支援語音合成 (Speech Synthesis)。');
+        return;
+    }
+    // speechSynthesis.getVoices() 可能在某些瀏覽器中是異步的。
+    // onvoiceschanged 事件是確保語音列表已填充的更可靠方法。
+    const voices = speechSynthesis.getVoices();
+    if (voices.length > 0) {
+        voicesLoaded = true;
+        cantoneseVoice = voices.find(voice => voice.lang === 'zh-HK');
+        if (cantoneseVoice) {
+            console.log('已找到廣東話語音:', cantoneseVoice.name, cantoneseVoice.lang);
+        } else {
+            console.warn('未找到廣東話 (zh-HK) 語音。將嘗試備選方案。');
+            // console.log('可用語音列表:', voices.map(v => ({ name: v.name, lang: v.lang })));
+        }
+    } else if (!voicesLoaded) { // 如果列表為空且是首次嘗試（voicesLoaded為false）
+        console.log('語音列表初始為空，等待 onvoiceschanged 事件。');
+    }
+}
+
+if ('speechSynthesis' in window) {
+    speechSynthesis.onvoiceschanged = () => {
+        console.log('onvoiceschanged 事件觸發。');
+        voicesLoaded = true; // 標記語音已載入（或至少嘗試載入過）
+        loadAvailableVoices();
+    };
+    // 即使設置了 onvoiceschanged，也立即調用一次，以防語音已可用
+    // (特別是在 Chrome 中，有時直接調用就能獲取到)
+    loadAvailableVoices();
+} else {
+    console.warn('此瀏覽器不支援語音合成 (Speech Synthesis)。');
+}
+
+
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -18,10 +57,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const charButtons = document.querySelectorAll('.char-btn'); //
     const currentCharText = document.getElementById('current-char-text'); //
-    const targetDiv = document.getElementById('character-target-div'); // HanziWriter's target
-    const hanziCanvasContainer = document.getElementById('hanzi-canvas-container'); 
-    const userStrokeOverlay = document.getElementById('user-stroke-overlay'); 
-    let userDrawnPaths = []; 
+    const targetDiv = document.getElementById('character-target-div'); //
+    const hanziCanvasContainer = document.getElementById('hanzi-canvas-container');
+    const userStrokeOverlay = document.getElementById('user-stroke-overlay');
+    let userDrawnPaths = [];
 
     const animateBtn = document.getElementById('animate-btn'); //
     const quizBtn = document.getElementById('quiz-btn'); //
@@ -30,6 +69,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const manualCharInput = document.getElementById('manual-char-input');
     const submitManualCharBtn = document.getElementById('submit-manual-char-btn');
+
+    function speakCharacterInCantonese(character) {
+        if (!('speechSynthesis' in window)) {
+            console.warn('語音合成功能不可用。');
+            return;
+        }
+        
+        // 如果 cantoneseVoice 仍然為 null，再次嘗試獲取，因為 onvoiceschanged 可能是異步的
+        if (!cantoneseVoice && voicesLoaded) { // 只有在 voicesLoaded 確認後才重新嘗試
+            loadAvailableVoices();
+        }
+
+        const utterance = new SpeechSynthesisUtterance(character);
+        utterance.lang = 'zh-HK'; 
+        utterance.rate = 0.85;   
+        utterance.pitch = 1;    
+
+        if (cantoneseVoice) {
+            utterance.voice = cantoneseVoice;
+            console.log(`嘗試使用廣東話語音 "${cantoneseVoice.name}" 朗讀: ${character}`);
+        } else {
+            const allVoices = speechSynthesis.getVoices(); // 再次獲取以確保最新
+            const fallbackChineseVoice = allVoices.find(voice => voice.lang.startsWith('zh-CN')) || allVoices.find(voice => voice.lang.startsWith('zh-TW')) || allVoices.find(voice => voice.lang.startsWith('zh-'));
+            if (fallbackChineseVoice) {
+                utterance.voice = fallbackChineseVoice;
+                utterance.lang = fallbackChineseVoice.lang; 
+                console.warn(`未找到廣東話語音，使用備選中文語音 "${fallbackChineseVoice.name}" (${fallbackChineseVoice.lang}) 朗讀: ${character}`);
+            } else {
+                console.warn(`未找到廣東話或任何中文備選語音，使用瀏覽器預設語音朗讀: ${character}`);
+            }
+        }
+        
+        speechSynthesis.cancel();
+        speechSynthesis.speak(utterance);
+
+        utterance.onerror = (event) => {
+            console.error('語音合成錯誤:', event.error, '朗讀內容:', utterance.text);
+        };
+    }
 
     function redrawUserStrokeOverlay() {
         if (!userStrokeOverlay) return;
@@ -194,6 +272,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     quizBtn.textContent = '重新練習'; //
                     quizBtn.disabled = false; //
+
+                    if (currentChar) {
+                        speakCharacterInCantonese(currentChar);
+                    }
                 }
             });
         }

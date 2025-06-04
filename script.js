@@ -14,45 +14,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetBtn = document.getElementById('reset-btn');
     const scoreFeedback = document.getElementById('score-feedback');
 
-    /**
-     * 初始化或更新 Hanzi Writer 實例
-     * @param {string} char - 要顯示和練習的漢字
-     */
+    // 新增：獲取手動輸入相關元素
+    const manualCharInput = document.getElementById('manual-char-input');
+    const submitManualCharBtn = document.getElementById('submit-manual-char-btn');
+
     /**
      * 初始化或更新 Hanzi Writer 實例
      * @param {string} char - 要顯示和練習的漢字
      */
     function initializeWriter(char) {
-        currentChar = char;
+        currentChar = char; // 更新當前字元
         currentCharText.textContent = char;
         scoreFeedback.textContent = '---';
         scoreFeedback.style.color = '#D84315'; // 更新預設回饋顏色
 
         targetDiv.innerHTML = ''; // 清除舊的畫布
 
-        let canvasSize = 250; // 預設畫布大小 (適用於手機等小螢幕)
-        // 如果視窗寬度大於等於 600px (例如平板)，則使用較大的畫布
+        let canvasSize = 250; // 預設畫布大小
         if (window.innerWidth >= 600) {
-            canvasSize = 280;
+            canvasSize = 280; // 較大螢幕使用較大畫布
         }
 
         writer = HanziWriter.create(targetDiv, char, {
-            width: canvasSize,  // 使用動態計算的畫布寬度
-            height: canvasSize, // 使用動態計算的畫布高度
+            width: canvasSize,
+            height: canvasSize,
             padding: 10,
             showOutline: true,
             showCharacter: true,
             strokeAnimationSpeed: 1,
             delayBetweenStrokes: 250,
-            strokeColor: '#4A4A4A', // 筆劃顏色可以深一點
-            highlightColor: '#F06292', // 高亮顏色用粉紅色
-            outlineColor: '#FFD180', // 漢字外框用淡橘色
-            drawingColor: '#29B6F6', // 使用者繪製筆劃的顏色 (藍色)
-            drawingWidth: 14, // 筆劃寬度加粗，方便小朋友
+            strokeColor: '#4A4A4A',
+            highlightColor: '#F06292',
+            outlineColor: '#FFD180',
+            drawingColor: '#29B6F6',
+            drawingWidth: 14,
             onLoadCharDataSuccess: function(data) {
                 totalStrokes = data.strokes.length;
                 animateBtn.disabled = false;
-                if (quizBtn) {
+                if (quizBtn) { // 檢查 quizBtn 是否存在
                     quizBtn.disabled = false;
                     quizBtn.textContent = '開始練習';
                 }
@@ -60,25 +59,53 @@ document.addEventListener('DOMContentLoaded', () => {
             onLoadCharDataError: function(reason) {
                 console.error('無法載入字元數據: ' + char, reason);
                 currentCharText.textContent = `無法載入 "${char}"`;
-                scoreFeedback.textContent = '載入錯誤';
+                scoreFeedback.textContent = '載入錯誤，請確認字元或網路。';
                 scoreFeedback.style.color = '#dc3545';
                 animateBtn.disabled = true;
-                if (quizBtn) {
+                if (quizBtn) { // 檢查 quizBtn 是否存在
                     quizBtn.disabled = true;
                 }
             }
         });
 
+        // 更新預設字元按鈕的 active 狀態
         charButtons.forEach(btn => {
             btn.classList.toggle('active', btn.dataset.char === char);
         });
     }
 
+    // 為預設字元按鈕綁定事件
     charButtons.forEach(button => {
         button.addEventListener('click', () => {
             initializeWriter(button.dataset.char);
         });
     });
+
+    // 為手動輸入按鈕綁定事件
+    if (submitManualCharBtn && manualCharInput) { // 確保元素存在
+        submitManualCharBtn.addEventListener('click', () => {
+            const charToLoad = manualCharInput.value.trim();
+
+            if (charToLoad && charToLoad.length === 1) {
+                initializeWriter(charToLoad);
+                manualCharInput.value = ''; // 清空輸入框
+            } else if (charToLoad.length > 1) {
+                scoreFeedback.textContent = '請只輸入一個字進行練習。';
+                scoreFeedback.style.color = '#dc3545';
+            } else {
+                scoreFeedback.textContent = '請輸入一個繁體中文字。';
+                scoreFeedback.style.color = '#dc3545';
+            }
+        });
+
+        manualCharInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                submitManualCharBtn.click();
+            }
+        });
+    }
+
 
     animateBtn.addEventListener('click', () => {
         if (writer) {
@@ -96,29 +123,15 @@ document.addEventListener('DOMContentLoaded', () => {
             quizBtn.disabled = true;
 
             writer.quiz({
-                // quiz অপশন এখানে যোগ করা যেতে পারে, যেমন:
-                //leniency: 1, // ভুলের সহনশীলতা
-                //showHintAfterMisses: 1, // কতবার ভুলের পর হিন্ট দেখাবে (ডিফল্ট 1)
-                //highlightOnComplete: true, // সম্পূর্ণ হলে হাইলাইট করবে কিনা
-
-                // 當使用者畫出正確的一筆時觸發
                 onCorrectStroke: function(data) {
-                    console.log(`筆劃 ${data.strokeNum + 1} 正確! (此筆劃嘗試 ${data.mistakesOnStroke + 1} 次)`);
                     scoreFeedback.textContent = `第 ${data.strokeNum + 1} 筆正確！(${data.strokeNum + 1}/${totalStrokes})`;
-                    scoreFeedback.style.color = '#28a745'; // 綠色表示正確
+                    scoreFeedback.style.color = '#28a745';
                 },
-                // 當使用者在某筆劃上出錯時觸發
                 onMistake: function(data) {
-                    console.log(`筆劃 ${data.strokeNum + 1} 錯誤 (此筆劃第 ${data.mistakesOnStroke} 次錯誤)! 總錯誤: ${data.totalMistakes}`);
-                    // Hanzi Writer 會自動顯示正確筆劃的提示，這就是視覺上的對比
                     scoreFeedback.textContent = `第 ${data.strokeNum + 1} 筆好像不太對喔，請看提示修正。`;
-                    scoreFeedback.style.color = '#dc3545'; // 紅色表示錯誤
-                    // data.drawnPath 包含了使用者畫的錯誤筆劃數據 (SVG 路徑字符串)
-                    // console.log("使用者畫的錯誤路徑:", data.drawnPath.pathString);
+                    scoreFeedback.style.color = '#dc3545';
                 },
-                // 當使用者完成所有筆劃（無論對錯）時觸發
                 onComplete: function(summary) {
-                    console.log('練習完成!', summary);
                     let mistakes = summary.totalMistakes;
                     let score = 0;
 
@@ -153,12 +166,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     resetBtn.addEventListener('click', () => {
-        if (writer) {
-            initializeWriter(currentChar);
+        if (writer && currentChar) { // 確保 currentChar 有效
+            initializeWriter(currentChar); // 重設為最後一個成功載入的字
             scoreFeedback.textContent = '已重設，請重新開始。';
             scoreFeedback.style.color = '#17a2b8';
+        } else if (characters.length > 0) { // 如果 currentChar 無效，嘗試重設為列表第一個字
+             initializeWriter(characters[0]);
+             scoreFeedback.textContent = '已重設，請重新開始。';
+             scoreFeedback.style.color = '#17a2b8';
         }
     });
 
-    initializeWriter(characters[0]);
+    // 初始載入第一個預設字元
+    if (characters.length > 0) {
+        initializeWriter(characters[0]);
+    } else {
+        // 如果沒有預設字元，可以提示使用者手動輸入
+        scoreFeedback.textContent = '請選擇或輸入一個字開始練習。';
+        animateBtn.disabled = true;
+        if(quizBtn) quizBtn.disabled = true;
+    }
 });

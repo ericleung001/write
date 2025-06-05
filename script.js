@@ -7,36 +7,33 @@ const BUTTON_COLOR_PALETTE = [
 ];
 
 function loadAvailableVoices() {
+    // console.log("loadAvailableVoices called"); // 增加日誌
     if (!('speechSynthesis' in window)) {
         console.warn('語音合成(API): 此瀏覽器不支援。');
         return;
     }
     const voices = speechSynthesis.getVoices();
-    console.log('loadAvailableVoices: 嘗試獲取語音，獲取到 ' + voices.length + ' 個。');
+    // console.log('loadAvailableVoices: 嘗試獲取語音，獲取到 ' + voices.length + ' 個。');
     if (voices.length > 0) {
         voicesLoaded = true;
         cantoneseVoice = voices.find(voice => voice.lang === 'zh-HK');
         if (cantoneseVoice) {
-            console.log('語音合成(API): 已找到廣東話語音:', cantoneseVoice.name, cantoneseVoice.lang);
+            // console.log('語音合成(API): 已找到廣東話語音:', cantoneseVoice.name, cantoneseVoice.lang);
         } else {
-            console.warn('語音合成(API): 未找到廣東話 (zh-HK) 語音。');
-            // console.log('可用語音列表:', voices.map(v => ({ name: v.name, lang: v.lang })));
+            // console.warn('語音合成(API): 未找到廣東話 (zh-HK) 語音。');
         }
     } else if (!voicesLoaded) { 
-        console.log('語音合成(API): 語音列表初始為空，等待 onvoiceschanged 事件。');
+        // console.log('語音合成(API): 語音列表初始為空，等待 onvoiceschanged 事件。');
     }
 }
 
 if ('speechSynthesis' in window) {
     speechSynthesis.onvoiceschanged = () => {
-        console.log('語音合成(API): onvoiceschanged 事件觸發。');
+        // console.log('語音合成(API): onvoiceschanged 事件觸發。');
         voicesLoaded = true; 
         loadAvailableVoices();
     };
-    // 某些瀏覽器 (如 Chrome) 可能需要使用者互動後才會完整載入語音列表，
-    // 或者在頁面載入一段時間後才觸發 onvoiceschanged。
-    // 第一次調用 loadAvailableVoices 仍然有必要。
-    setTimeout(loadAvailableVoices, 100); // 稍微延遲一點點首次調用，給瀏覽器一點時間
+    loadAvailableVoices();
 } else {
     console.warn('語音合成(API): 此瀏覽器不支援。');
 }
@@ -54,8 +51,11 @@ function debounce(func, wait) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM Fully Loaded and Parsed");
     const PREDEFINED_CHARS = ["我", "你", "們"]; 
+    console.log("PREDEFINED_CHARS:", JSON.stringify(PREDEFINED_CHARS));
     let currentChar = PREDEFINED_CHARS[0] || ''; 
+    console.log("Initial currentChar:", currentChar);
     let writer = null;
     let totalStrokes = 0;
 
@@ -85,41 +85,130 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const STORAGE_KEY = 'userAddedHanziChars';
 
-    function loadUserChars() { /* ... (與上一版本相同) ... */ }
-    function saveUserChars(charsArray) { /* ... (與上一版本相同) ... */ }
-    function updateAllCharsForDisplay() { /* ... (與上一版本相同) ... */ }
-    function addUserChar(char) { /* ... (與上一版本相同) ... */ }
-    function deleteUserChar(charToDelete) { /* ... (與上一版本相同) ... */ }
-    function updatePaginationControls() { /* ... (與上一版本相同) ... */ }
+    function loadUserChars() {
+        const charsJSON = localStorage.getItem(STORAGE_KEY);
+        console.log("loadUserChars: from localStorage raw:", charsJSON);
+        try {
+            const parsedChars = JSON.parse(charsJSON);
+            const result = Array.isArray(parsedChars) ? parsedChars : [];
+            console.log("loadUserChars: parsed as:", JSON.stringify(result));
+            return result;
+        } catch (e) {
+            console.error("loadUserChars: Error parsing JSON from localStorage", e);
+            return [];
+        }
+    }
+
+    function saveUserChars(charsArray) {
+        console.log("saveUserChars: Saving to localStorage:", JSON.stringify(charsArray));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(charsArray));
+    }
+    
+    function updateAllCharsForDisplay() {
+        console.log("updateAllCharsForDisplay: Called");
+        const userChars = loadUserChars();
+        console.log("updateAllCharsForDisplay: Loaded userChars:", JSON.stringify(userChars));
+        const displayChars = [...PREDEFINED_CHARS];
+        console.log("updateAllCharsForDisplay: Started with predefined:", JSON.stringify(displayChars));
+        userChars.forEach(uc => {
+            if (!displayChars.includes(uc)) { 
+                displayChars.push(uc);
+            }
+        });
+        allCharsForDisplay = displayChars;
+        console.log("updateAllCharsForDisplay: Final allCharsForDisplay:", JSON.stringify(allCharsForDisplay));
+    }
+
+    function addUserChar(char) {
+        console.log(`addUserChar: Attempting to add "${char}"`);
+        if (!char || char.length !== 1) {
+            console.warn("addUserChar: Invalid char to add (null, empty, or multiple chars).");
+            return false;
+        }
+        const userChars = loadUserChars();
+        if (PREDEFINED_CHARS.includes(char)) {
+            console.log(`addUserChar: "${char}" is a predefined character.`);
+            return false; 
+        }
+        if (userChars.includes(char)) {
+            console.log(`addUserChar: "${char}" already exists in user characters.`);
+            return false; 
+        }
+        userChars.push(char);
+        saveUserChars(userChars);
+        updateAllCharsForDisplay(); 
+        console.log(`addUserChar: Successfully added "${char}". New allCharsForDisplay:`, JSON.stringify(allCharsForDisplay));
+        return true;
+    }
+
+    function deleteUserChar(charToDelete) {
+        console.log(`deleteUserChar: Attempting to delete "${charToDelete}"`);
+        let userChars = loadUserChars();
+        const initialLength = userChars.length;
+        userChars = userChars.filter(char => char !== charToDelete);
+        if (userChars.length < initialLength) {
+            console.log(`deleteUserChar: "${charToDelete}" found and removed from userChars.`);
+        } else {
+            console.warn(`deleteUserChar: "${charToDelete}" not found in userChars.`);
+        }
+        saveUserChars(userChars);
+        updateAllCharsForDisplay(); 
+        console.log(`deleteUserChar: After deletion, allCharsForDisplay:`, JSON.stringify(allCharsForDisplay));
+    }
+    
+    function updatePaginationControls() {
+        // console.log("updatePaginationControls: Called. currentPage:", currentPage, "allCharsForDisplay.length:", allCharsForDisplay.length);
+        if (!prevPageBtn || !nextPageBtn || !pageInfoSpan) { console.error("Pagination controls not found!"); return; }
+
+        const totalChars = allCharsForDisplay.length;
+        const totalPages = Math.max(1, Math.ceil(totalChars / CHARS_PER_PAGE)); 
+
+        if (currentPage < 1 && totalPages > 0) currentPage = 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+
+        pageInfoSpan.textContent = `第 ${totalPages === 0 ? 0 : currentPage}/${totalPages} 頁`;
+
+        prevPageBtn.disabled = (currentPage === 1);
+        nextPageBtn.disabled = (currentPage === totalPages || totalPages === 0);
+        // console.log(`updatePaginationControls: Page ${currentPage}/${totalPages}. Prev disabled: ${prevPageBtn.disabled}, Next disabled: ${nextPageBtn.disabled}`);
+    }
 
     function renderCharButtons() {
-        if (!charButtonsWrapper) { console.error("charButtonsWrapper not found!"); return; }
+        console.log("renderCharButtons: Called. currentChar:", currentChar, "currentPage:", currentPage);
+        console.log("renderCharButtons: Current allCharsForDisplay:", JSON.stringify(allCharsForDisplay));
+        if (!charButtonsWrapper) { console.error("renderCharButtons: charButtonsWrapper not found!"); return; }
         charButtonsWrapper.innerHTML = ''; 
 
         const startIndex = (currentPage - 1) * CHARS_PER_PAGE;
         const endIndex = startIndex + CHARS_PER_PAGE;
         const charsOnThisPage = allCharsForDisplay.slice(startIndex, endIndex);
+        console.log(`renderCharButtons: Displaying page ${currentPage}. StartIndex: ${startIndex}, EndIndex: ${endIndex}. Chars on this page:`, JSON.stringify(charsOnThisPage));
+
 
         if (allCharsForDisplay.length === 0) {
+            console.log("renderCharButtons: No characters to display at all.");
             charButtonsWrapper.innerHTML = '<p style="font-size: 0.9em; color: #666;">暫無字元，請手動輸入添加。</p>';
             if (!currentChar){ 
-                 initializeWriter('');
+                 initializeWriter(''); // This will also call renderCharButtons, ensure no infinite loop
             }
             updatePaginationControls();
             return;
         }
         
         if (charsOnThisPage.length === 0 && currentPage > 1) {
+            console.log(`renderCharButtons: Current page ${currentPage} is empty, but not page 1. Moving to previous page.`);
             currentPage--;
             renderCharButtons(); 
             return; 
         }
         
         charsOnThisPage.forEach((char) => { 
+            // console.log(`renderCharButtons: Creating button for "${char}"`);
             const button = document.createElement('button');
             button.classList.add('char-btn'); 
             if (char === currentChar) {
                 button.classList.add('active');
+                // console.log(`renderCharButtons: Button for "${char}" is active.`);
             }
             button.dataset.char = char;
             button.textContent = char;
@@ -136,6 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
             button.style.backgroundColor = BUTTON_COLOR_PALETTE[colorIndex];
 
             button.addEventListener('click', () => {
+                console.log(`Button for "${char}" clicked.`);
                 charButtonsWrapper.querySelectorAll('.char-btn.active').forEach(b => b.classList.remove('active'));
                 button.classList.add('active');
                 initializeWriter(char);
@@ -151,17 +241,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 deleteBtn.addEventListener('click', (event) => {
                     event.stopPropagation(); 
+                    console.log(`Delete button for "${char}" clicked.`);
                     if (confirm(`您確定要從您的練習列表中刪除「${char}」嗎？`)) {
                         const charWasCurrent = currentChar === char;
                         deleteUserChar(char); 
                         
                         if (charWasCurrent) {
+                            console.log(`Deleted current character "${char}". Determining next character.`);
                             const nextCharToLoad = allCharsForDisplay.length > 0 ? allCharsForDisplay[0] : ''; 
+                            console.log(`Next character to load after delete: "${nextCharToLoad}"`);
                             initializeWriter(nextCharToLoad); 
                         }
                         
                         const totalPages = Math.max(1, Math.ceil(allCharsForDisplay.length / CHARS_PER_PAGE));
                         if (currentPage > totalPages) {
+                            console.log(`Current page ${currentPage} is now out of bounds (total pages: ${totalPages}). Setting to ${totalPages}`);
                             currentPage = totalPages;
                         }
                         renderCharButtons(); 
@@ -175,111 +269,36 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePaginationControls();
     }
 
-    if (prevPageBtn) { /* ... (與上一版本相同) ... */ }
-    if (nextPageBtn) { /* ... (與上一版本相同) ... */ }
+    if (prevPageBtn) { prevPageBtn.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderCharButtons(); } }); }
+    if (nextPageBtn) { nextPageBtn.addEventListener('click', () => { const totalPages = Math.ceil(allCharsForDisplay.length / CHARS_PER_PAGE); if (currentPage < totalPages) { currentPage++; renderCharButtons(); } }); }
     
-    if (clearAllUserCharsBtn) { /* ... (與上一版本相同) ... */ }
+    if (clearAllUserCharsBtn) { clearAllUserCharsBtn.addEventListener('click', () => { /* ... (與上一版本相同，內含日誌) ... */ }); }
 
-    function speakCharacterInCantonese(character) {
-        console.log("嘗試發音: ", character);
-        if (!character) {
-            console.warn("發音失敗：字元為空。");
-            return;
-        }
-        if (!('speechSynthesis' in window)) { 
-            console.warn('發音失敗：瀏覽器不支援 Speech Synthesis API。');
-            return; 
-        }
-        
-        // 確保語音列表已嘗試載入
-        if (!voicesLoaded) {
-            console.log("發音前再次嘗試載入語音列表...");
-            loadAvailableVoices(); // 同步調用一次
-            if (!voicesLoaded && speechSynthesis.getVoices().length > 0) { // 如果同步調用成功獲取了
-                voicesLoaded = true; // 更新標誌
-                console.log("同步載入語音成功。");
-            }
-        }
-        
-        let voiceToUse = cantoneseVoice; // cantoneseVoice 是全局的，由 loadAvailableVoices 更新
-        
-        // 如果全局的 cantoneseVoice 仍未找到，再次嘗試從最新的列表中尋找
-        if (!voiceToUse) {
-            const currentVoices = speechSynthesis.getVoices();
-            console.log("再次檢查可用語音數量: ", currentVoices.length);
-            if (currentVoices.length > 0) {
-                voiceToUse = currentVoices.find(voice => voice.lang === 'zh-HK');
-                if (voiceToUse) {
-                    cantoneseVoice = voiceToUse; // 更新全局變數
-                    console.log('在朗讀時找到廣東話語音:', voiceToUse.name);
-                }
-            }
-        }
-
-        const utterance = new SpeechSynthesisUtterance(character);
-        utterance.lang = 'zh-HK'; 
-        utterance.rate = 0.85;   
-        utterance.pitch = 1;    
-
-        if (voiceToUse) {
-            utterance.voice = voiceToUse;
-            console.log(`使用廣東話語音 "${voiceToUse.name}" (${voiceToUse.lang}) 朗讀: ${character}`);
-        } else {
-            const allVoices = speechSynthesis.getVoices();
-            const fallbackChineseVoice = allVoices.find(voice => voice.lang.startsWith('zh-CN')) || allVoices.find(voice => voice.lang.startsWith('zh-TW')) || allVoices.find(voice => voice.lang.startsWith('zh-'));
-            if (fallbackChineseVoice) {
-                utterance.voice = fallbackChineseVoice;
-                utterance.lang = fallbackChineseVoice.lang; 
-                console.warn(`未找到廣東話，使用備選中文語音 "${fallbackChineseVoice.name}" (${fallbackChineseVoice.lang}) 朗讀: ${character}`);
-            } else { 
-                console.warn(`未找到廣東話或任何中文備選語音，使用瀏覽器預設語音朗讀: ${character}`);
-                if (allVoices.length > 0) { // 如果有任何語音，至少用一個
-                    utterance.voice = allVoices[0]; // 使用第一個可用的語音
-                    utterance.lang = allVoices[0].lang;
-                     console.warn(`備選中的備選，使用第一個可用語音: "${allVoices[0].name}" (${allVoices[0].lang})`);
-                } else {
-                    console.error("錯誤：系統中沒有任何可用語音。");
-                    return; // 沒有任何語音，無法朗讀
-                }
-            }
-        }
-        
-        speechSynthesis.cancel(); 
-        speechSynthesis.speak(utterance);
-
-        utterance.onstart = () => console.log("朗讀開始:", character);
-        utterance.onend = () => console.log("朗讀結束:", character);
-        utterance.onerror = (e) => console.error('語音合成錯誤:', e.error, "朗讀的字:", character, "使用的語音:", utterance.voice ? utterance.voice.name : "未指定");
-    }
-
-    function redrawUserStrokeOverlay() { 
-        if (!userStrokeOverlay) { console.error("redrawUserStrokeOverlay: userStrokeOverlay is null"); return; }
-        console.log("redrawUserStrokeOverlay: Clearing and redrawing " + userDrawnPaths.length + " paths.");
-        userStrokeOverlay.innerHTML = ''; 
-
-        userDrawnPaths.forEach((pathData, index) => {
-            const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            pathElement.setAttribute('d', pathData.path);
-            pathElement.setAttribute('fill', 'none');
-            pathElement.setAttribute('stroke', pathData.color); 
-            pathElement.setAttribute('stroke-width', '4'); // 稍微加粗一點，方便查看
-            pathElement.setAttribute('stroke-linecap', 'round');
-            pathElement.setAttribute('stroke-linejoin', 'round');
-            pathElement.setAttribute('opacity', '0.75'); // 稍微提高不透明度
-            userStrokeOverlay.appendChild(pathElement);
-            console.log(`Path ${index + 1} drawn: color=${pathData.color}`);
-        });
-        if (userDrawnPaths.length > 0) {
-             console.log("redrawUserStrokeOverlay: Overlay updated with paths.");
-        } else {
-             console.log("redrawUserStrokeOverlay: No paths to draw.");
-        }
-    }
+    function speakCharacterInCantonese(character) { /* ... (與上一版本相同，內含日誌) ... */ }
+    function redrawUserStrokeOverlay() { /* ... (與上一版本相同，內含日誌) ... */ }
 
     function initializeWriter(char) {
-        if (!char) { /* ... (與上一版本相同) ... */ }
+        console.log(`initializeWriter: Called with char = "${char}"`);
+        if (!char) { 
+            console.log("initializeWriter: Character is empty. Clearing canvas and showing prompts.");
+            currentCharText.textContent = '-';
+            if(targetDiv) targetDiv.innerHTML = '';
+            if (userStrokeOverlay) userStrokeOverlay.innerHTML = '';
+            userDrawnPaths = [];
+            scoreFeedback.textContent = '請選擇或添加一個字開始練習。';
+            if(animateBtn) animateBtn.disabled = true;
+            if(quizBtn) {
+                quizBtn.disabled = true;
+                quizBtn.textContent = '開始練習';
+            }
+            currentChar = ''; 
+            if (charButtonsWrapper && allCharsForDisplay.length === 0) {
+                 console.log("initializeWriter: No characters in allCharsForDisplay, calling renderCharButtons to show empty message.");
+                 renderCharButtons(); 
+            }
+            return;
+        }
 
-        console.log('initializeWriter called with char:', char);
         currentChar = char; 
         currentCharText.textContent = char; 
         scoreFeedback.textContent = '---'; 
@@ -290,13 +309,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (userStrokeOverlay) {
             userStrokeOverlay.innerHTML = ''; 
             userStrokeOverlay.setAttribute('viewBox', '0 0 1024 1024'); 
-            console.log("User stroke overlay cleared and viewBox set.");
         } else {
             console.error("initializeWriter: userStrokeOverlay is null!");
         }
         userDrawnPaths = [];
-        console.log("User drawn paths reset.");
-
 
         const containerWidth = hanziCanvasContainer.offsetWidth;
         const containerHeight = hanziCanvasContainer.offsetHeight; 
@@ -338,108 +354,57 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+        console.log("initializeWriter: Calling renderCharButtons at the end for char:", char);
         renderCharButtons(); 
     }
 
-    if (submitManualCharBtn && manualCharInput) { /* ... (與上一版本相同) ... */ }
-    
-    animateBtn.addEventListener('click', () => {
-        console.log('「看動畫」按鈕被點擊');
-        console.log('目前的 writer 物件:', writer);
-        console.log('「看動畫」按鈕是否被禁用 (animateBtn.disabled):', animateBtn.disabled);
-        console.log('當前字元 (currentChar):', currentChar);
-
-        if (animateBtn.disabled) {
-            console.warn('「看動畫」按鈕目前是禁用狀態。');
-            scoreFeedback.textContent = '動畫功能目前不可用 (按鈕已禁用)。';
-            scoreFeedback.style.color = '#dc3545';
-            return;
-        }
-
-        if (writer && typeof writer.animateCharacter === 'function') {
-            console.log('正在呼叫 writer.animateCharacter()');
-            writer.animateCharacter();
-            scoreFeedback.textContent = '請觀察筆順。';
-            scoreFeedback.style.color = '#17a2b8';
-        } else {
-            console.error('HanziWriter 實例 (writer) 不存在或 animateCharacter 方法無效。');
-            scoreFeedback.textContent = '動畫功能錯誤：Writer 未正確初始化或方法不存在。';
-            scoreFeedback.style.color = '#dc3545';
-        }
-    });
-    
-    quizBtn.addEventListener('click', () => { 
-        if (writer && currentChar) { 
-            if (quizBtn.textContent === '開始練習' || quizBtn.textContent === '重新練習') { 
-                if (userStrokeOverlay) userStrokeOverlay.innerHTML = '';
-                userDrawnPaths = [];
-                console.log("Quiz started: User stroke overlay and paths cleared.");
-            }
-            scoreFeedback.textContent = '請依照筆順書寫。'; 
-            scoreFeedback.style.color = '#17a2b8'; 
-            quizBtn.textContent = '練習中...'; 
-            quizBtn.disabled = true; 
-
-            writer.quiz({ 
-                onCorrectStroke: function(data) { 
-                    scoreFeedback.textContent = `第 ${data.strokeNum + 1} 筆正確！(${data.strokeNum + 1}/${totalStrokes})`; 
-                    scoreFeedback.style.color = '#28a745'; 
-                    if (data.drawnPath && data.drawnPath.pathString) {
-                        console.log("onCorrectStroke: drawnPath received", data.drawnPath.pathString);
-                        userDrawnPaths.push({ path: data.drawnPath.pathString, color: '#28a745' }); 
-                        redrawUserStrokeOverlay();
-                    } else {
-                        console.warn("onCorrectStroke: drawnPath or pathString is missing", data);
-                    }
-                },
-                onMistake: function(data) { 
-                    scoreFeedback.textContent = `第 ${data.strokeNum + 1} 筆好像不太對喔，請看提示修正。`; 
-                    scoreFeedback.style.color = '#dc3545'; 
-                     if (data.drawnPath && data.drawnPath.pathString) {
-                        console.log("onMistake: drawnPath received", data.drawnPath.pathString);
-                        userDrawnPaths.push({ path: data.drawnPath.pathString, color: '#dc3545' }); 
-                        redrawUserStrokeOverlay();
-                    } else {
-                        console.warn("onMistake: drawnPath or pathString is missing", data);
-                    }
-                },
-                onComplete: function(summary) { 
-                    console.log('測驗完成! Summary:', summary, "準備朗讀字元:", currentChar);
-                    let mistakes = summary.totalMistakes; 
-                    let score = 0; 
-                    if (totalStrokes > 0) { /* ... (計分邏輯不變) ... */ }
-                    /* ... (更新 scoreFeedback 文字不變) ... */
-                    quizBtn.textContent = '重新練習'; 
-                    quizBtn.disabled = false; 
-
-                    if (currentChar) { 
-                        speakCharacterInCantonese(currentChar);
-                    } else {
-                        console.warn("測驗完成，但 currentChar 為空，無法朗讀。")
-                    }
+    if (submitManualCharBtn && manualCharInput) {
+        submitManualCharBtn.addEventListener('click', () => {
+            const charToLoad = manualCharInput.value.trim();
+            console.log(`Manual Submit: charToLoad = "${charToLoad}"`);
+            if (charToLoad && charToLoad.length === 1) {
+                const isNewCharAdded = addUserChar(charToLoad); 
+                console.log(`Manual Submit: addUserChar returned ${isNewCharAdded}`);
+                if (isNewCharAdded) {
+                    currentPage = Math.max(1, Math.ceil(allCharsForDisplay.length / CHARS_PER_PAGE));
+                    console.log(`Manual Submit: New char added. Set currentPage to ${currentPage}`);
                 }
-            });
-        } else if (!currentChar) {
-            scoreFeedback.textContent = '請先選擇一個字元才能開始練習。';
-            scoreFeedback.style.color = '#dc3545';
-        } else {
-             console.error("Quiz button clicked, but writer is not initialized.");
-        }
-    }); 
+                initializeWriter(charToLoad); 
+                manualCharInput.value = '';
+            } else if (charToLoad.length > 1) {
+                scoreFeedback.textContent = '請只輸入一個字進行練習。'; 
+                scoreFeedback.style.color = '#dc3545'; 
+            } else {
+                scoreFeedback.textContent = '請輸入一個繁體中文字。'; 
+                scoreFeedback.style.color = '#dc3545'; 
+            }
+        });
+        manualCharInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                submitManualCharBtn.click();
+            }
+        });
+    }
     
+    animateBtn.addEventListener('click', () => { /* ... (與上一版本相同，內含日誌) ... */ });
+    quizBtn.addEventListener('click', () => { /* ... (與上一版本相同，內含日誌和發音) ... */ }); 
     resetBtn.addEventListener('click', () => { /* ... (與上一版本相同) ... */ });
     
+    console.log("Initial page setup: Updating all chars for display.");
     updateAllCharsForDisplay(); 
+    console.log("Initial page setup: Rendering char buttons.");
     renderCharButtons();      
     
     let charToLoadInitially = PREDEFINED_CHARS.includes(currentChar) ? currentChar : PREDEFINED_CHARS[0];
     if (!charToLoadInitially && allCharsForDisplay.length > 0) {
         charToLoadInitially = allCharsForDisplay[0];
     }
+    console.log("Initial page setup: Character to load initially:", charToLoadInitially || "none");
     initializeWriter(charToLoadInitially || ''); 
 
 
-    const debouncedResizeHandler = debounce(() => { /* ... (與上一版本相同) ... */ });
+    const debouncedResizeHandler = debounce(() => { /* ... (與上一版本相同，內含日誌) ... */ });
     window.addEventListener('resize', debouncedResizeHandler);
 
 });

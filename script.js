@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const finalCanvasWidth = containerWidth > 0 ? containerWidth : 250;
         const finalCanvasHeight = containerHeight > 0 ? containerHeight : 250;
         
-        console.log(`HanziWriter: Creating instance for "${char}" with size <span class="math-inline">\{finalCanvasWidth\}x</span>{finalCanvasHeight}`);
+        console.log(`HanziWriter: Creating instance for "${char}" with size ${finalCanvasWidth}x${finalCanvasHeight}`);
         writer = HanziWriter.create(targetDiv, char, {
             width: finalCanvasWidth,  
             height: finalCanvasHeight, 
@@ -282,4 +282,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 初始載入 ---
     console.log("INITIAL LOAD: Updating all chars for display.");
     updateAllCharsForDisplay(); 
-    console.log("INITIAL")
+    console.log("INITIAL LOAD: Rendering char buttons. Initial currentPage:", currentPage);
+    renderCharButtons();      
+    
+    let charToLoadInitially = PREDEFINED_CHARS.includes(currentChar) ? currentChar : PREDEFINED_CHARS[0];
+    if (!charToLoadInitially && allCharsForDisplay.length > 0) {
+        charToLoadInitially = allCharsForDisplay[0];
+    }
+    console.log("INITIAL LOAD: Character to load initially:", charToLoadInitially || "none (will call initializeWriter with empty)");
+    initializeWriter(charToLoadInitially || ''); 
+
+    const debouncedResizeHandler = debounce(() => { /* ... (與上一版本相同，內含日誌) ... */ });
+    window.addEventListener('resize', debouncedResizeHandler);
+
+}); // DOMContentLoaded 結束

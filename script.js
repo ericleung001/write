@@ -5,7 +5,7 @@ const BUTTON_COLOR_PALETTE = [
     '#4DB6AC', '#7986CB', '#90A4AE', '#A1887F', '#F06292',
     '#FFAB40', '#40C4FF', '#69F0AE', '#FFEE58', '#CE93D8'
 ];
-let lastColorIndex = -1; 
+// let lastColorIndex = -1; // 移除，因為按鈕顏色分配邏輯已更改
 
 function loadAvailableVoices() {
     if (!('speechSynthesis' in window)) {
@@ -77,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevPageBtn = document.getElementById('prev-page-btn');
     const nextPageBtn = document.getElementById('next-page-btn');
     const pageInfoSpan = document.getElementById('page-info');
+    const clearAllUserCharsBtn = document.getElementById('clear-all-user-chars-btn'); // 新按鈕
 
     const STORAGE_KEY = 'userAddedHanziChars';
 
@@ -131,15 +132,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalChars = allCharsForDisplay.length;
         const totalPages = Math.max(1, Math.ceil(totalChars / CHARS_PER_PAGE)); 
 
-        if (currentPage < 1 && totalPages > 0) currentPage = 1; // 如果頁碼無效但有頁數，設為1
-        if (currentPage > totalPages) currentPage = totalPages; // 確保不超過總頁數
+        if (currentPage < 1 && totalPages > 0) currentPage = 1;
+        if (currentPage > totalPages) currentPage = totalPages;
 
         pageInfoSpan.textContent = `第 ${totalPages === 0 ? 0 : currentPage}/${totalPages} 頁`;
 
         prevPageBtn.disabled = (currentPage === 1);
         nextPageBtn.disabled = (currentPage === totalPages || totalPages === 0);
     }
-
 
     function renderCharButtons() {
         if (!charButtonsWrapper) return;
@@ -176,11 +176,13 @@ document.addEventListener('DOMContentLoaded', () => {
             let colorIndex;
             const globalIndexOfChar = allCharsForDisplay.indexOf(char);
 
+            // 確保 PREDEFINED_CHARS 中的字有優先且固定的顏色 (如果調色盤足夠)
             if (PREDEFINED_CHARS.includes(char)) {
                 const predefinedIndex = PREDEFINED_CHARS.indexOf(char);
-                colorIndex = predefinedIndex % BUTTON_COLOR_PALETTE.length; 
+                 // 使用模運算確保索引在調色盤範圍內
+                colorIndex = predefinedIndex % BUTTON_COLOR_PALETTE.length;
             } else {
-                // 使用全局索引來分配顏色，保證使用者添加的字元顏色分佈更廣
+                // 使用者添加的字，嘗試從預設字之後的顏色開始，也使用模運算
                 colorIndex = (globalIndexOfChar) % BUTTON_COLOR_PALETTE.length;
             }
             button.style.backgroundColor = BUTTON_COLOR_PALETTE[colorIndex];
@@ -207,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         deleteUserChar(char); 
                         
                         if (charWasCurrent) {
-                            const nextCharToLoad = allCharsForDisplay[0] || ''; 
+                            const nextCharToLoad = allCharsForDisplay.length > 0 ? allCharsForDisplay[0] : ''; 
                             initializeWriter(nextCharToLoad); 
                         }
                         
@@ -243,6 +245,37 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    
+    if (clearAllUserCharsBtn) {
+        clearAllUserCharsBtn.addEventListener('click', () => {
+            const currentUserChars = loadUserChars();
+            if (currentUserChars.length === 0) {
+                scoreFeedback.textContent = '目前沒有自訂字元可清除。';
+                scoreFeedback.style.color = '#17a2b8';
+                setTimeout(() => { 
+                    if (scoreFeedback.textContent === '目前沒有自訂字元可清除。') {
+                        scoreFeedback.textContent = '---';
+                        scoreFeedback.style.color = '#D84315';
+                    }
+                }, 3000);
+                return;
+            }
+
+            if (confirm("您確定要清除所有手動加入的練習字嗎？\n此操作無法復原。")) {
+                saveUserChars([]); 
+                updateAllCharsForDisplay(); 
+                currentPage = 1; 
+                
+                let charToLoadAfterClear = PREDEFINED_CHARS.length > 0 ? PREDEFINED_CHARS[0] : '';
+                initializeWriter(charToLoadAfterClear); // 會更新 currentChar 並在內部調用 renderCharButtons
+                
+                console.log('所有手動輸入的字元已被清除。');
+                scoreFeedback.textContent = '所有自訂字元已清除。';
+                scoreFeedback.style.color = '#17a2b8'; 
+            }
+        });
+    }
+
 
     function speakCharacterInCantonese(character) { /* ... (與上一版本相同) ... */ }
     function redrawUserStrokeOverlay() { /* ... (與上一版本相同) ... */ }
@@ -260,9 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 quizBtn.textContent = '開始練習';
             }
             currentChar = ''; 
-            // 確保在沒有字元時，按鈕區域也正確反映狀態 (renderCharButtons 已處理)
-            // 如果 allCharsForDisplay 為空，renderCharButtons 會顯示提示
-            if (allCharsForDisplay.length === 0) {
+            if (charButtonsWrapper && allCharsForDisplay.length === 0) { // 只有在確實沒有任何字元時才顯示提示
                  renderCharButtons(); 
             }
             return;
@@ -319,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-        renderCharButtons(); // 確保按鈕高亮狀態在初始化字元後也正確
+        renderCharButtons(); 
     }
 
     if (submitManualCharBtn && manualCharInput) {
@@ -328,11 +359,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (charToLoad && charToLoad.length === 1) {
                 const isNewCharAdded = addUserChar(charToLoad); 
                 if (isNewCharAdded) {
-                    // 新增字後，跳到包含該新字的最後一頁
                     currentPage = Math.max(1, Math.ceil(allCharsForDisplay.length / CHARS_PER_PAGE));
                 }
-                // 無論是否新增到 storage (可能已存在)，都將其設為當前字並初始化/高亮
-                initializeWriter(charToLoad); // 會更新 currentChar 並觸發 renderCharButtons
+                initializeWriter(charToLoad); 
                 manualCharInput.value = '';
             } else if (charToLoad.length > 1) {
                 scoreFeedback.textContent = '請只輸入一個字進行練習。'; 
@@ -376,7 +405,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     quizBtn.addEventListener('click', () => { 
-        if (writer && currentChar) { // 確保 currentChar 有效才開始測驗
+        if (writer && currentChar) { 
             if (quizBtn.textContent === '開始練習' || quizBtn.textContent === '重新練習') { 
                 if (userStrokeOverlay) userStrokeOverlay.innerHTML = '';
                 userDrawnPaths = [];
@@ -387,10 +416,45 @@ document.addEventListener('DOMContentLoaded', () => {
             quizBtn.disabled = true; 
 
             writer.quiz({ 
-                onCorrectStroke: function(data) { /* ... (與上一版本相同) ... */ },
-                onMistake: function(data) { /* ... (與上一版本相同) ... */ },
+                onCorrectStroke: function(data) { 
+                    scoreFeedback.textContent = `第 ${data.strokeNum + 1} 筆正確！(${data.strokeNum + 1}/${totalStrokes})`; 
+                    scoreFeedback.style.color = '#28a745'; 
+                    if (data.drawnPath) {
+                        userDrawnPaths.push({ path: data.drawnPath.pathString, color: '#28a745' }); 
+                        redrawUserStrokeOverlay();
+                    }
+                },
+                onMistake: function(data) { 
+                    scoreFeedback.textContent = `第 ${data.strokeNum + 1} 筆好像不太對喔，請看提示修正。`; 
+                    scoreFeedback.style.color = '#dc3545'; 
+                     if (data.drawnPath) {
+                        userDrawnPaths.push({ path: data.drawnPath.pathString, color: '#dc3545' }); 
+                        redrawUserStrokeOverlay();
+                    }
+                },
                 onComplete: function(summary) { 
-                    /* ... (與上一版本相同，包含計分和發音) ... */ 
+                    let mistakes = summary.totalMistakes; 
+                    let score = 0; 
+                    if (totalStrokes > 0) { 
+                        if (mistakes === 0) score = 100; 
+                        else if (mistakes <= Math.ceil(totalStrokes * 0.25)) score = 80 - (mistakes - 1) * 5; 
+                        else if (mistakes <= Math.ceil(totalStrokes * 0.5)) score = 60 - (mistakes - Math.ceil(totalStrokes * 0.25) - 1) * 5; 
+                        else score = Math.max(0, 40 - (mistakes - Math.ceil(totalStrokes * 0.5)) * 5); 
+                        score = Math.max(0, Math.round(score)); 
+                    }
+                    if (score >= 80) { 
+                        scoreFeedback.textContent = `太棒了！得分：${score} 分 (總錯誤 ${mistakes} 次)`; 
+                        scoreFeedback.style.color = '#28a745'; 
+                    } else if (score >= 60) { 
+                        scoreFeedback.textContent = `做得不錯！得分：${score} 分 (總錯誤 ${mistakes} 次)`; 
+                        scoreFeedback.style.color = '#ffc107'; 
+                    } else {
+                        scoreFeedback.textContent = `再接再厲！得分：${score} 分 (總錯誤 ${mistakes} 次)`; 
+                        scoreFeedback.style.color = '#dc3545'; 
+                    }
+                    quizBtn.textContent = '重新練習'; 
+                    quizBtn.disabled = false; 
+
                     if (currentChar) { 
                         speakCharacterInCantonese(currentChar);
                     }
@@ -404,16 +468,17 @@ document.addEventListener('DOMContentLoaded', () => {
     
     resetBtn.addEventListener('click', () => { 
         let charToReset = currentChar;
-        if (!charToReset) { 
-            charToReset = allCharsForDisplay[0] || ''; // 從更新後的 allCharsForDisplay 取第一個
+        if (!charToReset && allCharsForDisplay.length > 0) { // 如果 currentChar 為空，但列表不為空
+            charToReset = allCharsForDisplay[0];
+        } else if (!charToReset && allCharsForDisplay.length === 0) { // 如果 currentChar 和列表都為空
+            charToReset = '';
         }
+        // 如果 charToReset 仍然是 PREDEFINED_CHARS[0] 且 PREDEFINED_CHARS 為空，也會變成 ''
         
-        if (charToReset) { 
-            initializeWriter(charToReset); 
+        initializeWriter(charToReset); // initializeWriter 會處理空字串的情況
+        if (charToReset) {
             scoreFeedback.textContent = '已重設，請重新開始。'; 
             scoreFeedback.style.color = '#17a2b8'; 
-        } else {
-            initializeWriter(''); 
         }
     });
     
@@ -427,7 +492,28 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeWriter(charToLoadInitially || ''); 
 
 
-    const debouncedResizeHandler = debounce(() => { /* ... (與上一版本相同) ... */ });
+    const debouncedResizeHandler = debounce(() => {
+        const isQuizActive = quizBtn && quizBtn.disabled === true && quizBtn.textContent === '練習中...';
+        if (isQuizActive) {
+            console.log('視窗大小改變，但測驗進行中。HanziWriter 不重新初始化。');
+            return; 
+        }
+        // 確保即使 currentChar 為空，但列表中有字時，也能正確重新初始化
+        let charForResize = currentChar;
+        if (!charForResize && allCharsForDisplay.length > 0) {
+            charForResize = allCharsForDisplay[0];
+        }
+
+        if (writer && charForResize) { // 只有在 writer 實例存在且有有效字元時才重新初始化
+            console.log('視窗大小/方向改變，重新初始化 HanziWriter (字元:', charForResize, ')');
+            initializeWriter(charForResize);
+        } else if (!writer && charForResize) { // 如果 writer 不存在但有字元可以載入 (例如初始載入失敗後 resize)
+             console.log('視窗大小/方向改變，Writer 不存在，嘗試初始化 HanziWriter (字元:', charForResize, ')');
+             initializeWriter(charForResize);
+        } else if (!charForResize) { // 如果沒有字元可以載入
+             initializeWriter('');
+        }
+    }, 250);
     window.addEventListener('resize', debouncedResizeHandler);
 
 });

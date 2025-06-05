@@ -1,60 +1,60 @@
 /* Reset and Base Styles */
 * {
-    margin: 0; /* */
-    padding: 0; /* */
-    box-sizing: border-box; /* */
-    -webkit-tap-highlight-color: transparent; /* */
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    -webkit-tap-highlight-color: transparent; 
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", sans-serif; /* */
-    display: flex; /* */
-    justify-content: center; /* */
-    align-items: flex-start; /* */
-    min-height: 100vh; /* */
-    background-color: #E0F7FA; /* */
-    padding: 20px; /* */
-    color: #33475B; /* */
-    line-height: 1.6; /* */
-    overflow-x: hidden; /* */
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", sans-serif; 
+    display: flex; 
+    justify-content: center; 
+    align-items: flex-start; 
+    min-height: 100vh; 
+    background-color: #E0F7FA; 
+    padding: 20px; 
+    color: #33475B; 
+    line-height: 1.6; 
+    overflow-x: hidden; 
 }
 
 .container {
-    background-color: #ffffff; /* */
-    padding: 25px; /* */
-    border-radius: 25px; /* */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0,0,0,0.08); /* */
-    text-align: center; /* */
-    width: 100%; /* */
-    max-width: 500px; /* Default max-width */ /* */
-    margin: 20px auto; /* */
-    border: 3px solid #FFF; /* */
+    background-color: #ffffff; 
+    padding: 25px; 
+    border-radius: 25px; 
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0,0,0,0.08); 
+    text-align: center; 
+    width: 100%; 
+    max-width: 500px; /* Default max-width */ 
+    margin: 20px auto; 
+    border: 3px solid #FFF; 
 }
 
 h1 {
-    font-size: 2.2em; /* */
-    color: #FF6B6B; /* */
-    margin-bottom: 30px; /* */
-    font-weight: 700; /* */
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1); /* */
+    font-size: 2.2em; 
+    color: #FF6B6B; 
+    margin-bottom: 30px; 
+    font-weight: 700; 
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1); 
 }
 
 /* 漢字專用字體 */
 .char-btn, 
-#current-char-text, /* */
+#current-char-text, 
 #manual-char-input {
-    font-family: 'KaiTi', 'BiauKai', '標楷體', 'DFKai-SB', serif; /* */
+    font-family: 'KaiTi', 'BiauKai', '標楷體', 'DFKai-SB', serif; 
 }
 
 /* 漢字選擇區域 */
 .char-selection {
-    margin-bottom: 20px; /* */
+    margin-bottom: 20px; 
 }
 .char-selection p {
-    margin-bottom: 15px; /* */
-    font-size: 1.1em; /* */
-    color: #1A5276; /* */
-    font-weight: 500; /* */
+    margin-bottom: 15px; 
+    font-size: 1.1em; 
+    color: #1A5276; 
+    font-weight: 500; 
 }
 .char-buttons-wrapper {
     display: flex;
@@ -64,29 +64,29 @@ h1 {
     min-height: 50px; 
 }
 .char-btn { 
-    font-size: 1.8em; /* */
+    font-size: 1.8em; 
     padding: 10px 15px; 
     padding-right: 20px; 
     margin: 0; 
-    cursor: pointer; /* */
-    border-radius: 15px; /* */
+    cursor: pointer; 
+    border-radius: 15px; 
     transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease, background-color 0.2s ease; 
-    color: white; /* */
-    font-weight: bold; /* */
-    border: none; /* */
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* */
+    color: white; 
+    font-weight: bold; 
+    border: none; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
     position: relative; 
     min-width: 60px; 
     text-align: center;
 }
 .char-btn:hover {
-    transform: translateY(-4px) scale(1.08); /* */
-    box-shadow: 0 7px 14px rgba(0,0,0,0.18); /* */
+    transform: translateY(-4px) scale(1.08); 
+    box-shadow: 0 7px 14px rgba(0,0,0,0.18); 
 }
 .char-btn.active { 
-    transform: scale(1.05) translateY(1px); /* */ 
+    transform: scale(1.05) translateY(1px);  
     box-shadow: 0 0 12px rgba(0,0,0,0.3), 
-                inset 0 3px 5px rgba(0,0,0,0.25); /* */
+                inset 0 3px 5px rgba(0,0,0,0.25); 
 }
 
 .delete-char-icon {
@@ -156,40 +156,21 @@ h1 {
 }
 
 /* 手動輸入區域樣式 */
-.manual-char-input-area { /* */
-    margin-top: 25px; /* */
-    margin-bottom: 30px; /* */
-    padding: 20px; /* */
-    background-color: #F0F4F8; /* */
-    border-radius: 15px; /* */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.08); /* */
-    display: flex; /* */
-    flex-direction: column; /* */
-    align-items: center; /* */
-}
-.manual-char-input-area p { /* */ margin-bottom: 18px; font-size: 1.15em; color: #00796B; font-weight: 500; }
-.input-button-wrapper { /* */ display: flex; align-items: center; gap: 12px; width: 100%; }
-#manual-char-input { /* */ font-size: 1.8em; padding: 10px 15px; width: 100px;  flex-grow: 1; min-width: 80px; text-align: center; border: 2px solid #B0BEC5; border-radius: 12px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.06); transition: border-color 0.3s ease, box-shadow 0.3s ease; background-color: #FFFFFF; }
-#manual-char-input:focus { /* */ border-color: #00796B; box-shadow: inset 0 2px 4px rgba(0,0,0,0.06), 0 0 0 3px rgba(0, 121, 107, 0.2); outline: none; }
-#submit-manual-char-btn { /* */ font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", sans-serif; font-size: 1.1em; padding: 12px 20px; border-radius: 12px; background-color: #26A69A; color: white; border: none; cursor: pointer; font-weight: 600; transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease; box-shadow: 0 4px 0 #00796B; text-shadow: 0px 1px 1px rgba(0,0,0,0.2); flex-shrink: 0; }
-#submit-manual-char-btn:hover { /* */ background-color: #00897B; box-shadow: 0 4px 0 #004D40, 0 2px 8px rgba(0,0,0,0.1); transform: translateY(-2px); }
-#submit-manual-char-btn:active { /* */ background-color: #00695C; box-shadow: 0 2px 0 #004D40; transform: translateY(1px); }
+.manual-char-input-area { margin-top: 25px; margin-bottom: 30px; padding: 20px; background-color: #F0F4F8; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.08); display: flex; flex-direction: column; align-items: center; }
+.manual-char-input-area p { margin-bottom: 18px; font-size: 1.15em; color: #00796B; font-weight: 500; }
+.input-button-wrapper { display: flex; align-items: center; gap: 12px; width: 100%; }
+#manual-char-input { font-size: 1.8em; padding: 10px 15px; width: 100px;  flex-grow: 1; min-width: 80px; text-align: center; border: 2px solid #B0BEC5; border-radius: 12px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.06); transition: border-color 0.3s ease, box-shadow 0.3s ease; background-color: #FFFFFF; }
+#manual-char-input:focus { border-color: #00796B; box-shadow: inset 0 2px 4px rgba(0,0,0,0.06), 0 0 0 3px rgba(0, 121, 107, 0.2); outline: none; }
+#submit-manual-char-btn { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", sans-serif; font-size: 1.1em; padding: 12px 20px; border-radius: 12px; background-color: #26A69A; color: white; border: none; cursor: pointer; font-weight: 600; transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease; box-shadow: 0 4px 0 #00796B; text-shadow: 0px 1px 1px rgba(0,0,0,0.2); flex-shrink: 0; }
+#submit-manual-char-btn:hover { background-color: #00897B; box-shadow: 0 4px 0 #004D40, 0 2px 8px rgba(0,0,0,0.1); transform: translateY(-2px); }
+#submit-manual-char-btn:active { background-color: #00695C; box-shadow: 0 2px 0 #004D40; transform: translateY(1px); }
 
 /* 目標漢字顯示 */
-#target-char-display {
-    margin: 20px 0; /* */
-    font-size: 1.3em; /* */
-    color: #1A5276; /* */
-    font-weight: 500; /* */
-}
+#target-char-display { margin: 20px 0; font-size: 1.3em; color: #1A5276; font-weight: 500; }
 #current-char-text { font-weight: bold; color: #F06292; font-size: 2.8em; margin-left: 8px; vertical-align: middle; display: inline-block; transition: transform 0.3s ease; }
 #hanzi-canvas-container { width: 250px; height: 250px; margin: 20px auto 20px auto; border: 6px solid #FFCA28; background-color: #FFFFF0; border-radius: 20px; box-shadow: 0 5px 10px rgba(0,0,0,0.12); position: relative; overflow: hidden; }
 #character-target-div { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-#user-stroke-overlay { 
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; 
-    /* border: 1px dashed fuchsia; */ /* 用於調試疊加層位置 */
-}
+#user-stroke-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; /* border: 1px dashed fuchsia; */ }
 #character-target-div svg { width: 100%; height: 100%; display: block; }
 .controls { margin-top: 20px; display: flex; flex-direction: column; gap: 18px; }
 .controls button { font-size: 1.25em; padding: 16px 22px; cursor: pointer; border-radius: 18px; border: none; color: white; font-weight: 600; transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease; box-shadow: 0 5px 0 rgba(0,0,0,0.1); text-shadow: 0px 1px 2px rgba(0,0,0,0.25); }
@@ -204,35 +185,10 @@ h1 {
 #score-feedback { font-weight: 700; display: block; margin-top: 5px; font-size: 1.15em; color: #D84315; }
 
 /* 清除自訂字按鈕區域 */
-.custom-controls-area {
-    margin-top: 20px;
-    margin-bottom: 10px;
-    display: flex; 
-    justify-content: center;
-}
-.control-btn-secondary {
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", sans-serif;
-    font-size: 1em; 
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 15px;
-    border: 2px solid #FFA000; 
-    color: #FFA000; 
-    background-color: #FFF8E1; 
-    font-weight: 600;
-    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
-    display: inline-block; 
-    max-width: 280px; 
-}
-.control-btn-secondary:hover {
-    background-color: #FFECB3; 
-    color: #E65100; 
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-.control-btn-secondary:active {
-    background-color: #FFE082;
-    transform: translateY(1px);
-}
+.custom-controls-area { margin-top: 20px; margin-bottom: 10px; display: flex; justify-content: center; }
+.control-btn-secondary { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", sans-serif; font-size: 1em; padding: 10px 20px; cursor: pointer; border-radius: 15px; border: 2px solid #FFA000; color: #FFA000; background-color: #FFF8E1; font-weight: 600; transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease; display: inline-block; max-width: 280px; }
+.control-btn-secondary:hover { background-color: #FFECB3; color: #E65100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.control-btn-secondary:active { background-color: #FFE082; transform: translateY(1px); }
 
 /* 響應式調整 */
 @media (min-width: 600px) { 
@@ -266,6 +222,6 @@ h1 {
     .controls { width: 100%; max-width: 450px; margin-top: 20px; }
     .controls button { font-size: 1.1em; padding: 12px 18px; min-width: 120px; }
     #score-area { width: 100%; max-width: 450px; margin-top: 20px; }
-    .custom-controls-area { width: 100%; max-width: 450px; } /* Ensure it aligns with controls */
+    .custom-controls-area { width: 100%; max-width: 450px; } 
     .control-btn-secondary { width: auto; min-width: 200px; }
 }

@@ -282,4 +282,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 初始載入 ---
     console.log("INITIAL LOAD: Updating all chars for display.");
     updateAllCharsForDisplay(); 
-    console.log("INITIAL
+    console.log("INITIAL")

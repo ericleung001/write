@@ -61,7 +61,7 @@ h1 {
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px; 
-    min-height: 50px; /* 避免列表為空時塌陷 */
+    min-height: 50px; 
 }
 .char-btn { 
     font-size: 1.8em; /* */
@@ -167,7 +167,6 @@ h1 {
     flex-direction: column; /* */
     align-items: center; /* */
 }
-/* ... (手動輸入區域內部其他樣式保持不變) ... */
 .manual-char-input-area p { /* */ margin-bottom: 18px; font-size: 1.15em; color: #00796B; font-weight: 500; }
 .input-button-wrapper { /* */ display: flex; align-items: center; gap: 12px; width: 100%; }
 #manual-char-input { /* */ font-size: 1.8em; padding: 10px 15px; width: 100px;  flex-grow: 1; min-width: 80px; text-align: center; border: 2px solid #B0BEC5; border-radius: 12px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.06); transition: border-color 0.3s ease, box-shadow 0.3s ease; background-color: #FFFFFF; }
@@ -176,7 +175,6 @@ h1 {
 #submit-manual-char-btn:hover { /* */ background-color: #00897B; box-shadow: 0 4px 0 #004D40, 0 2px 8px rgba(0,0,0,0.1); transform: translateY(-2px); }
 #submit-manual-char-btn:active { /* */ background-color: #00695C; box-shadow: 0 2px 0 #004D40; transform: translateY(1px); }
 
-
 /* 目標漢字顯示 */
 #target-char-display {
     margin: 20px 0; /* */
@@ -184,7 +182,6 @@ h1 {
     color: #1A5276; /* */
     font-weight: 500; /* */
 }
-/* ... (current-char-text, hanzi-canvas-container, character-target-div, user-stroke-overlay, controls, score-area 等樣式保持不變) ... */
 #current-char-text { font-weight: bold; color: #F06292; font-size: 2.8em; margin-left: 8px; vertical-align: middle; display: inline-block; transition: transform 0.3s ease; }
 #hanzi-canvas-container { width: 250px; height: 250px; margin: 20px auto 20px auto; border: 6px solid #FFCA28; background-color: #FFFFF0; border-radius: 20px; box-shadow: 0 5px 10px rgba(0,0,0,0.12); position: relative; overflow: hidden; }
 #character-target-div { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
@@ -202,13 +199,43 @@ h1 {
 #score-area { margin-top: 35px; font-size: 1.2em; color: #33475B; padding: 20px; background-color: #FFFDE7; border-radius: 15px; min-height: 3em; border: 4px dashed #FFB74D; box-shadow: 0 4px 6px rgba(0,0,0,0.05); font-weight: 500; }
 #score-feedback { font-weight: 700; display: block; margin-top: 5px; font-size: 1.15em; color: #D84315; }
 
+/* 清除自訂字按鈕區域 */
+.custom-controls-area {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    display: flex; 
+    justify-content: center;
+}
+.control-btn-secondary {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", sans-serif;
+    font-size: 1em; 
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 15px;
+    border: 2px solid #FFA000; 
+    color: #FFA000; 
+    background-color: #FFF8E1; 
+    font-weight: 600;
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+    display: inline-block; 
+    max-width: 280px; 
+}
+.control-btn-secondary:hover {
+    background-color: #FFECB3; 
+    color: #E65100; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.control-btn-secondary:active {
+    background-color: #FFE082;
+    transform: translateY(1px);
+}
+
 
 /* 響應式調整 */
-@media (min-width: 600px) { /* */
-    /* ... (大部分 600px 的樣式與上一版本相同，確保 .char-btn 的 padding-right 也調整) ... */
+@media (min-width: 600px) { 
     .container { padding: 30px 40px; margin-top: 30px; margin-bottom: 30px; max-width: 580px; }
     h1 { font-size: 2.6em; }
-    .char-btn { font-size: 2em; padding: 15px 22px; padding-right: 28px; } /* Adjusted padding-right */
+    .char-btn { font-size: 2em; padding: 15px 22px; padding-right: 28px; } 
     .manual-char-input-area p { font-size: 1.2em; }
     #manual-char-input { font-size: 2em; width: 120px; padding: 12px 18px; }
     #submit-manual-char-btn { font-size: 1.25em; padding: 14px 22px; }
@@ -219,16 +246,16 @@ h1 {
     .pagination-controls { margin-top: 25px; gap: 20px; }
     .page-btn { font-size: 1em; padding: 10px 18px; }
     #page-info { font-size: 1em; }
+    .control-btn-secondary { font-size: 1.1em; padding: 12px 22px; }
 }
 
-@media screen and (min-width: 900px) and (orientation: landscape) { /* */
-    /* ... (大部分 900px landscape 的樣式與上一版本相同，確保 .char-btn 的 padding-right 也調整) ... */
+@media screen and (min-width: 900px) and (orientation: landscape) { 
     .container { max-width: 1100px; margin-top: 20px; margin-bottom: 20px; }
     .layout-wrapper-ipad-landscape { display: flex; justify-content: space-between; gap: 30px; }
     .left-column-ipad { flex-basis: 35%; max-width: 380px; display: flex; flex-direction: column; gap: 20px; }
     .right-column-ipad { flex-basis: 60%; display: flex; flex-direction: column; align-items: center; }
     .char-selection, .manual-char-input-area { width: 100%; margin-top: 0; margin-bottom: 0; }
-    .char-btn { font-size: 1.6em; padding: 10px 15px; padding-right: 22px; } /* Adjusted padding-right */
+    .char-btn { font-size: 1.6em; padding: 10px 15px; padding-right: 22px; } 
     .input-button-wrapper { width: 100%; }
     #manual-char-input { font-size: 1.5em; flex-grow: 1; min-width: 80px; }
     #submit-manual-char-btn { padding: 10px 15px; font-size: 1em; flex-shrink: 0; }
@@ -236,4 +263,6 @@ h1 {
     .controls { width: 100%; max-width: 450px; margin-top: 20px; }
     .controls button { font-size: 1.1em; padding: 12px 18px; min-width: 120px; }
     #score-area { width: 100%; max-width: 450px; margin-top: 20px; }
+    .custom-controls-area { width: 100%; max-width: 450px; }
+    .control-btn-secondary { width: auto; min-width: 200px; }
 }
